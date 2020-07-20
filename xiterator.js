@@ -223,16 +223,12 @@ export class Xiterator {
      * `concat` as `Array.prototype.some`
      */
     concat(...args) {
-        let that = this.iter;
-        for (const arg of args) {
-            // if primitive, wrap w/ an array
-            let it = (Object(arg) === arg ? arg : [arg])[Symbol.iterator]();
-            that = (function*(head, tail){
-                for (const v of head) yield v;
-                for (const v of tail) yield v;
-            })(that, it);
-        }
-        return new Xiterator(that);
+        return new Xiterator(function*(head, rest){
+            for (const v of head) yield v;
+            for (const it of rest) {
+                for (const v of it) yield v;
+            }
+        }(this.iter, args.map(v => (Object(v) === v ? v : [v])[Symbol.iterator]())));
     }
     /**
      * `slice` as `Array.prototype.slice`
