@@ -1,3 +1,5 @@
+[![build status](https://secure.travis-ci.org/dankogai/js-xiterator.png)](http://travis-ci.org/dankogai/js-xiterator)
+
 # js-xiterator
 
 Make ES6 Iterators Functional Again
