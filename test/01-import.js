@@ -1,4 +1,4 @@
-import {Xiterator, xiterator, range} from '../xiterator.js';
+import {Xiterator, xiterator, xrange} from '../xiterator.js';
 describe('import', () => {
   it('Xiterator is a function', () => 
     chai.expect(typeof Xiterator).to.equal('function')
@@ -7,6 +7,6 @@ describe('import', () => {
     chai.expect(typeof xiterator).to.equal('function')
   );
   it('range is a function', () =>
-    chai.expect(typeof range).to.equal('function')
+    chai.expect(typeof xrange).to.equal('function')
   );
 });

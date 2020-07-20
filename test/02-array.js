@@ -1,12 +1,12 @@
-import {Xiterator, xiterator, range} from '../xiterator.js';
+import {Xiterator, xiterator, xrange} from '../xiterator.js';
 const $      = chai.expect;
 const should = chai.should;
 describe('[...]', () => {
     it('[...xiterator(range(4))] === [0,1,2,3]', () =>
-       $([...xiterator(range(4))]).to.deep.equal([0,1,2,3])
+       $([...xiterator(xrange(4))]).to.deep.equal([0,1,2,3])
       );
 });
-const gen = (n) =>  xiterator(range(n))
+const gen = (n) =>  xiterator(xrange(n))
 const ary = [...gen(42)];
 describe('.prototype.map', () => {
     it('[...iter.map(v=>v*v)] === [...iter].map(v=>v*v)', () =>
