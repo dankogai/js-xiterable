@@ -229,7 +229,7 @@ export class Xiterator {
                 for (const v of it) yield v;
             }
         }(
-            this.iter,
+            this.iter,    /* check if v is primitive and wrap if so */
             args.map(v => (Object(v) === v ? v : [v])[Symbol.iterator]())
         ));
     }
@@ -287,8 +287,8 @@ export class Xiterator {
             }
         }(
             this.map(v => [v])[Symbol.iterator](),
-            args.map(v => v[Symbol.iterator]()
-        )));
+            args.map(v => v[Symbol.iterator]())
+        ));
     }
     //// MARK: static methods
     /**
