@@ -3,6 +3,8 @@
   "version": "0.0.0",
   "description": "Make ES6 Iterators Functional Again",
   "main": "xiterator.js",
+  "module": "xiterator.js",
+  "files": ["xiterator.js"],
   "devDependencies": {
     "@babel/core": "^7.10.4",
     "@babel/plugin-proposal-export-namespace-from": "^7.10.4",
