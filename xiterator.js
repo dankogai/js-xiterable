@@ -313,9 +313,9 @@ export class Xiterator {
         return Xiterator.zip.apply(null, args).map(a => callback.apply(null, a));
     }
     /**
-     *  `range` like Python's `range()`
+     *  `xrange` like Python's `xrange()`
      */
-    static range(b = 0, e = Number.POSITIVE_INFINITY, d = 1) {
+    static xrange(b = 0, e = Number.POSITIVE_INFINITY, d = 1) {
         switch (arguments.length) {
             case 1: [b, e] =    [0, arguments[0]]; break;
             case 2: [b, e] =    [ ...  arguments]; break;
@@ -335,4 +335,4 @@ export class Xiterator {
  * @returns {Xiterator} simply returns `new Xiterator(obj)`
  */
 export const xiterator = (obj) => new Xiterator(obj);
-export const range = Xiterator.range;
+export const xrange = Xiterator.xrange;
