@@ -1,0 +1,4 @@
+{
+  "presets": ["@babel/env"],
+  "plugins": ["@babel/proposal-export-namespace-from"]
+}
