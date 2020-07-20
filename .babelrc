@@ -1,4 +1,7 @@
 {
   "presets": ["@babel/env"],
-  "plugins": ["@babel/proposal-export-namespace-from"]
+  "plugins": [
+     "@babel/proposal-export-namespace-from",
+     ["@babel/plugin-transform-runtime", {"regenerator":true}]
+  ]
 }

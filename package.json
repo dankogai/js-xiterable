@@ -3,8 +3,16 @@
   "version": "0.0.0",
   "description": "Make ES6 Iterators Functional Again",
   "main": "xiterator.js",
+  "devDependencies": {
+    "@babel/core": "^7.10.4",
+    "@babel/plugin-proposal-export-namespace-from": "^7.10.4",
+    "@babel/plugin-transform-runtime": "^7.10.4",
+    "@babel/preset-env": "^7.10.4",
+    "@babel/register": "^7.10.4",
+    "mocha": "^8.0.0"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --require @babel/register"
   },
   "repository": {
     "type": "git",
