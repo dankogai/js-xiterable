@@ -228,7 +228,10 @@ export class Xiterator {
             for (const it of rest) {
                 for (const v of it) yield v;
             }
-        }(this.iter, args.map(v => (Object(v) === v ? v : [v])[Symbol.iterator]())));
+        }(
+            this.iter,
+            args.map(v => (Object(v) === v ? v : [v])[Symbol.iterator]())
+        ));
     }
     /**
      * `slice` as `Array.prototype.slice`
@@ -270,16 +273,22 @@ export class Xiterator {
      * @returns {Xiterator}
      */
     zip(...args) {
-        let that = this.map(v => [v]);
-        for (const arg of args) {
-            that = (function*(ai, vi) {
-                let h, t;
-                while (!(h = ai.next()).done && !(t = vi.next()).done) {
-                    yield h.value.concat([t.value]);
+        return new Xiterator(function*(head, rest) {
+            while (true) {
+                let next = head.next();
+                if (next.done) return;
+                let elem = next.value;
+                for (const it of rest) {
+                    const vd = it.next();
+                    if (vd.done) return;
+                    elem.push(vd.value);
                 }
-            })(that[Symbol.iterator](), arg[Symbol.iterator]());
-        }
-        return new Xiterator(that);
+                yield elem;
+            }
+        }(
+            this.map(v => [v])[Symbol.iterator](),
+            args.map(v => v[Symbol.iterator]()
+        )));
     }
     //// MARK: static methods
     /**
