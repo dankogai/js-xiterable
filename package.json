@@ -1,0 +1,24 @@
+{
+  "name": "js-xiterator",
+  "version": "0.0.0",
+  "description": "Make ES6 Iterators Functional Again",
+  "main": "xiterator.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dankogai/js-xiterator.git"
+  },
+  "keywords": [
+    "iterator",
+    "es2015",
+    "es6"
+  ],
+  "author": "Dan Kogai",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dankogai/js-xiterator/issues"
+  },
+  "homepage": "https://github.com/dankogai/js-xiterator#readme"
+}
