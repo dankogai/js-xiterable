@@ -61,13 +61,13 @@ export class Xiterator {
        return this.map((v, i) => [i, v]);
     }
     /**
-    * `keys` as `Array.prototype.entries`
+    * `keys` as `Array.prototype.keys`
     */
     keys() {
         return this.map((v, i) => i);
     }
     /**
-    * `values` as `Array.prototype.entries`
+    * `values` as `Array.prototype.values`
     */
     values() {
         return this.map((v, i) => v);
@@ -88,21 +88,21 @@ export class Xiterator {
     }
     /**
      * `find` as `Array.prototype.find`
-     * @param {Function} predicate the predicate function
-     * @param {Object} [thisArg] Value to use as `this` when executing `predicate`
+     * @param {Function} fn the predicate function
+     * @param {Object} [thisArg] Value to use as `this` when executing `fn`
      */
-    find(predicate, thisArg=null) {
+    find(fn, thisArg=null) {
         return ((it) => {
             let i = 0;
             for (const v of it) {
-                if (predicate.call(thisArg, v, i++, it)) return v;
+                if (fn.call(thisArg, v, i++, it)) return v;
             }
         })(this.iter);
     }
     /**
      * `findIndex` as `Array.prototype.find`
      * @param {Function} predicate the predicate function
-     * @param {Object} [thisArg] Value to use as `this` when executing `predicate`
+     * @param {Object} [thisArg] Value to use as `this` when executing `fn`
      * @returns {Number}
      */
     findIndex(predicate, thisArg=null) {
@@ -119,7 +119,7 @@ export class Xiterator {
      * 
      * **CAVEAT**: `[...this]` is internally created if `fromIndex` is negative
      * @param {*} valueToFind the value to find
-     * @param {Object} [fromIndex] Value to use as `this` when executing `predicate`
+     * @param {Object} [fromIndex] Value to use as `this` when executing `fn`
      * @returns {Boolean}
      */
     includes(valueToFind, fromIndex=0) {
@@ -130,21 +130,21 @@ export class Xiterator {
     /**
      * `lastIndexOf` as `Array.prototype.find`
      * @param {*} valueToFind the value to find
-     * @param {Object} [fromIndex] Value to use as `this` when executing `predicate`
+     * @param {Object} [fromIndex] Value to use as `this` when executing `fn`
      */
     lastIndexOf(valueToFind, fromIndex=0) {
         return Array.prototype.lastIndexOf.apply([...this], arguments);
     }
     /**
      * `reduce` as `Array.prototype.reduce`
-     * @param {Function} reducer the reducer function
+     * @param {Function} fn the reducer function
      * @param {Object} [initialValue] the initial value
      */
-    reduce(reducer, initialValue) {
+    reduce(fn, initialValue) {
         return ((it) => {
             let [a, i] = 1 < arguments.length ? [initialValue, 0] : [it.next().value, 1]
             for (const v of it) {
-                a = reducer(a, v, i++, it);
+                a = fn(a, v, i++, it);
             }
             return a;
         })(this.iter);
@@ -154,8 +154,8 @@ export class Xiterator {
      * 
      * **CAVEAT**: `[...this]` is internally created
      */
-    reduceRight(reducer, initialValue) {
-        return Array.prototype.reduceRight.apply([...this], arguments);
+    reduceRight(...args) {
+        return Array.prototype.reduceRight.apply([...this], args);
     }
     /**
      * `flat` as `Array.prototype.flat`
@@ -185,36 +185,36 @@ export class Xiterator {
     }
     /**
      * `every` as `Array.prototype.every`
-     * @param {Function} predicate the predicate function
-     * @param {Object} [thisArg] Value to use as `this` when executing `predicate`
+     * @param {Function} fn the predicate function
+     * @param {Object} [thisArg] Value to use as `this` when executing `fn`
      * @returns {Boolean}
      */
-    every(predicate, thisArg=null) {
+    every(fn, thisArg=null) {
         return ((it) => {
             let x = {done:false};
             let i = 0;
             let a;
             while (!(x = it.next()).done) {
                 let v = x.value;
-                if (!predicate.call(thisArg, v, i++, it)) return false;
+                if (!fn.call(thisArg, v, i++, it)) return false;
             }
             return true;
         })(this.iter);
     }
     /**
      * `some` as `Array.prototype.some`
-     * @param {Function} predicate the predicate function
-     * @param {Object} [thisArg] Value to use as `this` when executing `predicate`
+     * @param {Function} fn the predicate function
+     * @param {Object} [thisArg] Value to use as `this` when executing `fn`
      * @returns {Boolean}
      */
-    some(predicate, thisArg=null) {
+    some(fn, thisArg=null) {
         return ((it) => {
             let x = {done:false};
             let i = 0;
             let a;
             while (!(x = it.next()).done) {
                 let v = x.value;
-                if (predicate.call(thisArg, v, i++, it)) return true;
+                if (fn.call(thisArg, v, i++, it)) return true;
             }
             return false;
         })(this.iter);
@@ -238,7 +238,7 @@ export class Xiterator {
      * `slice` as `Array.prototype.slice`
      * 
      * **CAVEAT**: `[...this]` is internally created
-     * @returns {Xiterator} a new `Xiterator` with flatMapped elements
+     * @returns {Xiterator} a new `Xiterator` with sliced elements
      */
     slice() {
         return new Xiterator(Array.prototype.slice.apply([...this], arguments));
@@ -330,3 +330,4 @@ export class Xiterator {
  * @returns {Xiterator} simply returns `new Xiterator(obj)`
  */
 export const xiterator = (obj) => new Xiterator(obj);
+export const range = Xiterator.range;
