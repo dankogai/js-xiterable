@@ -50,7 +50,7 @@ export class Xiterator {
         ((it) => {
             let i = 0;
             for (const v of it) {
-                fn.call(thisArg, x.value, i++, it);
+                fn.call(thisArg, v, i++, it);
             }
         })(this.iter);
     }
@@ -220,7 +220,7 @@ export class Xiterator {
         })(this.iter);
     }
     /**
-     * `concat` as `Array.prototype.some`
+     * `concat` as `Array.prototype.concat`
      */
     concat(...args) {
         return new Xiterator(function*(head, rest){
