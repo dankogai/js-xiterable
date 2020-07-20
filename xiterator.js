@@ -4,7 +4,6 @@
  * @version: 0.0.0
  * @author: dankogai
  *
- * @typedef {Function} callback 
 */
 export class Xiterator {
     static get version() {
@@ -31,76 +30,68 @@ export class Xiterator {
     /// MARK: methods found in Array.prototype ////
     /**
      * `map` as `Array.prototype.map`
-     * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
-     * @param {callback} transform the mapping function
-     * @param {Object} [thisArg] Value to use as `this` when executing `transform`
+     * @param {Function} fn the mapping function
+     * @param {Object} [thisArg] Value to use as `this` when executing `fn`
     */
-    map(transform, thisArg) {
+    map(fn, thisArg=null) {
         return new Xiterator(function*(it){
             let i = 0;
             for (const v of it) {
-                yield transform.call(thisArg, v, i++, it);
+                yield fn.call(thisArg, v, i++, it);
             }
         }(this.iter));
     }
     /**
      * `forEach` as `Array.prototype.map`
-     *
-     * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
-     * @param {callback} callback the callback function
-     * @param {Object} [thisArg] Value to use as `this` when executing `callback`
-    */
-    forEach(callback, thisArg) {
+     * @param {Function} fn the callback function
+     * @param {Object} [thisArg] Value to use as `this` when executing `fn`
+   */
+    forEach(fn, thisArg=null) {
         ((it) => {
             let i = 0;
             for (const v of it) {
-                callback.call(thisArg, x.value, i++, it);
+                fn.call(thisArg, x.value, i++, it);
             }
         })(this.iter);
     }
     /**
     * `entries` as `Array.prototype.entries`
-     * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/entries
     */
     entries() {
        return this.map((v, i) => [i, v]);
     }
     /**
     * `keys` as `Array.prototype.entries`
-    * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/keys
     */
     keys() {
         return this.map((v, i) => i);
     }
     /**
     * `values` as `Array.prototype.entries`
-    * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/keys
     */
     values() {
         return this.map((v, i) => v);
     }
     /**
      * `filter` as `Array.prototype.filter`
-     * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
-     * @param {callback} predicate the predicate function
-     * @param {Object} [thisArg] Value to use as `this` when executing `predicate`
+     * @param {Function} fn the predicate function
+     * @param {Object} [thisArg] Value to use as `this` when executing `fn`
      */
-    filter(predicate, thisArg) {
+    filter(fn, thisArg=null) {
         return new Xiterator(function*(it){
             let i = 0;
             for (const v of it) {
-                if (!predicate.call(thisArg, v, i++, it)) continue;
+                if (!fn.call(thisArg, v, i++, it)) continue;
                 yield v;
             }
         }(this.iter));
     }
     /**
      * `find` as `Array.prototype.find`
-     * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find
-     * @param {callback} predicate the predicate function
+     * @param {Function} predicate the predicate function
      * @param {Object} [thisArg] Value to use as `this` when executing `predicate`
      */
-    find(predicate, thisArg) {
+    find(predicate, thisArg=null) {
         return ((it) => {
             let i = 0;
             for (const v of it) {
@@ -110,12 +101,11 @@ export class Xiterator {
     }
     /**
      * `findIndex` as `Array.prototype.find`
-     * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex
-     * @param {callback} predicate the predicate function
+     * @param {Function} predicate the predicate function
      * @param {Object} [thisArg] Value to use as `this` when executing `predicate`
      * @returns {Number}
      */
-    findIndex(predicate, thisArg) {
+    findIndex(predicate, thisArg=null) {
         return ((it) => {
             let i = 0;
             for (const v of it) {
@@ -126,7 +116,6 @@ export class Xiterator {
     }
     /**
      * `includes` as `Array.prototype.includes`
-     * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/includes
      * 
      * **CAVEAT**: `[...this]` is internally created if `fromIndex` is negative
      * @param {*} valueToFind the value to find
@@ -140,7 +129,6 @@ export class Xiterator {
     }
     /**
      * `lastIndexOf` as `Array.prototype.find`
-     * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf
      * @param {*} valueToFind the value to find
      * @param {Object} [fromIndex] Value to use as `this` when executing `predicate`
      */
@@ -149,8 +137,7 @@ export class Xiterator {
     }
     /**
      * `reduce` as `Array.prototype.reduce`
-     * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce
-     * @param {callback} reducer the reducer function
+     * @param {Function} reducer the reducer function
      * @param {Object} [initialValue] the initial value
      */
     reduce(reducer, initialValue) {
@@ -166,7 +153,6 @@ export class Xiterator {
      * `reduceRight` as `Array.prototype.reduceRight`
      * 
      * **CAVEAT**: `[...this]` is internally created
-     * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduceRight
      */
     reduceRight(reducer, initialValue) {
         return Array.prototype.reduceRight.apply([...this], arguments);
@@ -175,25 +161,22 @@ export class Xiterator {
      * `flat` as `Array.prototype.flat`
      * 
      * **CAVEAT**: `[...this]` is internally created
-     * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
      * @returns {Xiterator} a new `Xiterator` with flattended elements
      */
-    flat() {
-        return new Xiterator(Array.prototype.flat.apply([...this], arguments));
+    flat(...args) {
+        return new Xiterator(Array.prototype.flat.apply([...this], args));
     }
     /**
      * `flatMap` as `Array.prototype.flatMap`
      * 
      * **CAVEAT**: `[...this]` is internally created
-     * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flatMap
      * @returns {Xiterator} a new `Xiterator` with flatMapped elements
      */
-    flatMap() {
-        return new Xiterator(Array.prototype.flatMap.apply([...this], arguments));
+    flatMap(...args) {
+        return new Xiterator(Array.prototype.flatMap.apply([...this], args));
     }
     /**
     * `join` as `Array.prototype.join`
-    * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/join
     * @param {String} separator
     * @returns {String}
     */
@@ -202,12 +185,11 @@ export class Xiterator {
     }
     /**
      * `every` as `Array.prototype.every`
-     * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every
      * @param {Function} predicate the predicate function
-     * @param {Object} [thisArg] Value to use as `this` when executing `transform`
+     * @param {Object} [thisArg] Value to use as `this` when executing `predicate`
      * @returns {Boolean}
      */
-    every(predicate, thisArg) {
+    every(predicate, thisArg=null) {
         return ((it) => {
             let x = {done:false};
             let i = 0;
@@ -221,12 +203,11 @@ export class Xiterator {
     }
     /**
      * `some` as `Array.prototype.some`
-     * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some
      * @param {Function} predicate the predicate function
-     * @param {Object} [thisArg] Value to use as `this` when executing `transform`
+     * @param {Object} [thisArg] Value to use as `this` when executing `predicate`
      * @returns {Boolean}
      */
-    some(predicate, thisArg) {
+    some(predicate, thisArg=null) {
         return ((it) => {
             let x = {done:false};
             let i = 0;
@@ -240,11 +221,10 @@ export class Xiterator {
     }
     /**
      * `concat` as `Array.prototype.some`
-     * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat
      */
-    concat() {
+    concat(...args) {
         let that = this.iter;
-        for (const arg of arguments) {
+        for (const arg of args) {
             // if primitive, wrap w/ an array
             let it = (Object(arg) === arg ? arg : [arg])[Symbol.iterator]();
             that = (function*(head, tail){
@@ -258,13 +238,92 @@ export class Xiterator {
      * `slice` as `Array.prototype.slice`
      * 
      * **CAVEAT**: `[...this]` is internally created
-     * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice
      * @returns {Xiterator} a new `Xiterator` with flatMapped elements
      */
     slice() {
         return new Xiterator(Array.prototype.slice.apply([...this], arguments));
     }
-    
+    //// MARK: functional methods not defined above
+    /**
+     * @param {Number} n
+     * @returns {Xiterator}
+     */
+    take(n) {
+        return new Xiterator(function*(it){
+            let i = 0;
+            for (const v of it) {
+                if (n <= i++) break;
+                yield v;
+            }
+        }(this.iter));
+    }
+    /**
+     * @param {Number} n
+     * @returns {Xiterator}
+     */
+    drop(n) {
+        return new Xiterator(function*(it){
+            let i = 0;
+            for (const v of it) {
+                if (i++ < n) continue;
+                yield v;
+            }
+        }(this.iter));
+    }
+    /**
+     * @returns {Xiterator}
+     */
+    zip(...args) {
+        let that = this.map(v => [v]);
+        for (const arg of args) {
+            that = (function*(ai, vi) {
+                let h, t;
+                while (!(h = ai.next()).done && !(t = vi.next()).done) {
+                    yield h.value.concat([t.value]);
+                }
+            })(that[Symbol.iterator](), arg[Symbol.iterator]());
+        }
+        return new Xiterator(that);
+    }
+    //// MARK: static methods
+    /**
+     * @returns {Xiterator}
+     */
+    static zip(arg0, ...args) {
+        if (typeof arg0[Symbol.iterator] !== 'function') {
+            throw TypeError(`${arg0} is not an iterator`);
+        }
+        let it = new Xiterator(arg0);
+        return it.zip.apply(it, args);
+    }
+    /**
+     * @param {Function} fn
+     * @returns {Xiterator}
+     */
+    static zipWith(fn, ...args) {
+        if (typeof fn !== 'function') throw TypeError(
+            `${fn} is not a function.`
+        );
+        //let args = [...arguments].slice(1);
+        return Xiterator.zip.apply(null, args).map(a => callback.apply(null, a));
+    }
+    /**
+     *  `range` like Python's `range()`
+     */
+    static range(b = 0, e = Number.POSITIVE_INFINITY, d = 1) {
+        switch (arguments.length) {
+            case 1: [b, e] =    [0, arguments[0]]; break;
+            case 2: [b, e] =    [ ...  arguments]; break;
+            case 3: [b, e, d] = [ ...  arguments]; break;
+        }
+        return new Xiterator(function*(b, e, d){
+            let i = b;
+            while (i < e) {
+                yield i;
+                i += d;
+            }
+        }(b, e, d));
+    }
 };
 //Xiterator.version = version;
 /**
