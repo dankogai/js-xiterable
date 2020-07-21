@@ -9,6 +9,12 @@ export class Xiterator {
     static get version() {
         return '0.0.0';
     }
+    /*
+     * `true` if `obj` is iterable.  `false` otherwise.
+     */
+    static isIterable(obj) {
+        return obj === Object(obj) && obj[Symbol.iterator] !== 'function';
+    }
     /**
      * Creates an instance of Xiterator.
      *
@@ -16,7 +22,7 @@ export class Xiterator {
      * @param {Iterable} obj the source iterator
      */
     constructor(obj) {
-        if (typeof obj[Symbol.iterator] !== 'function') {
+        if (!isIterable(obj)) {
             throw TypeError(`${obj} is not an iterator`);
         }
         Object.defineProperty(this, 'iter', { value:obj[Symbol.iterator]() });
@@ -45,7 +51,7 @@ export class Xiterator {
      * `forEach` as `Array.prototype.map`
      * @param {Function} fn the callback function
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
-   */
+    */
     forEach(fn, thisArg=null) {
         ((it) => {
             let i = 0;
@@ -163,7 +169,7 @@ export class Xiterator {
         if (depth === undefined) depth = 1;
         function* _flatten(iter, depth) {
             for (const it of iter) {
-                if (typeof it[Symbol.iterator] === 'function' && depth > 0) {
+                if (isIterable(it) && depth > 0) {
                     yield* _flatten(it, depth - 1);
                 } else {
                     yield it;
@@ -346,4 +352,5 @@ export class Xiterator {
  * @returns {Xiterator} simply returns `new Xiterator(obj)`
  */
 export const xiterator = (obj) => new Xiterator(obj);
+export const isIterable = Xiterator.isIterable;
 export const xrange = Xiterator.xrange;
