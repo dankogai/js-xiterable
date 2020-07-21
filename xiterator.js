@@ -13,7 +13,9 @@ export class Xiterator {
      * `true` if `obj` is iterable.  `false` otherwise.
      */
     static isIterable(obj) {
-        return obj === Object(obj) && obj[Symbol.iterator] !== 'function';
+        if (typeof obj === 'string') return true;  // string is iterable
+        if (obj !== Object(obj))     return false; // other primitives
+        return typeof obj[Symbol.iterator] !== 'undefined';
     }
     /**
      * Creates an instance of Xiterator.
@@ -353,4 +355,6 @@ export class Xiterator {
  */
 export const xiterator = (obj) => new Xiterator(obj);
 export const isIterable = Xiterator.isIterable;
+export const zip = Xiterator.zip;
+export const zipWith = Xiterator.zipWith;
 export const xrange = Xiterator.xrange;
