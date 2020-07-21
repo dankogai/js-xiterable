@@ -13,7 +13,6 @@ describe('isIterable', () => {
         it.skip('BigInt missing', x=>x);
     }
     it('null',     ()=>$(_.isIterable(null)).to.equal(false));
-    it('null',     ()=>$(_.isIterable(null)).to.equal(false));
     it('undefined',()=>$(_.isIterable(undefined)).to.equal(false));
     it('Object', ()=>$(_.isIterable({})).to.equal(false));
     it('Array', ()=>$(_.isIterable([])).to.equal(true));

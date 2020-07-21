@@ -15,7 +15,7 @@ export class Xiterator {
     static isIterable(obj) {
         if (typeof obj === 'string') return true;  // string is iterable
         if (obj !== Object(obj))     return false; // other primitives
-        return typeof obj[Symbol.iterator] !== 'undefined';
+        return typeof obj[Symbol.iterator] === 'function';
     }
     /**
      * Creates an instance of Xiterator.
