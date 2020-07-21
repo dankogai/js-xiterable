@@ -23,9 +23,9 @@ let it = xiterator(counter(10)).filter(v => v%2==1).map(v => v*v);
 
 ## vs. `Array.prototype`
 
-The following methods in `Array.prototype` are supported as follows.
+The following methods in `Array.prototype` are supported as follows.  "efficient" in this table means no temporary array (`[...this]`) is internally created.
 
-| method        | available? | lazy?| Comment |
+| method        | available? | efficent?| Comment |
 |---------------|------|------|---------|
 |[concat]       | ✔︎    | ✔︎    |   |
 |[copyWithin]   | ❌| | Not Immutable |
@@ -35,22 +35,22 @@ The following methods in `Array.prototype` are supported as follows.
 |[filter]       | ✔︎    | ✔︎    |   |
 |[find]         | ✔︎    | ✔︎    |   |
 |[findIndex]    | ✔︎    | ✔︎    |   |
-|[flat]         | ✔︎    | ❌ | `[...this]` internally |
-|[flatMap]      | ✔︎    | ❌ | `[...this]` internally |
+|[flat]         | ✔︎    | ✔︎    |   |
+|[flatMap]      | ✔︎    | ✔︎    |   |
 |[forEach]      | ✔︎    | ✔︎    |   |
-|[includes]     | ✔︎    | △    | not lazy if the 2nd arg is negative |
+|[includes]     | ✔︎    | △    | not efficient if the 2nd arg is negative |
 |[indexOf]      | ✔︎    | ✔︎    |   |
 |[join]         | ✔︎    | ✔︎    |   |
 |[keys]         | ✔︎    | ✔︎    |   |
-|[lastIndexOf]  | ✔︎    | ✔︎    |   |
+|[lastIndexOf]  | ✔︎    | ❌   |   |
 |[map]          | ✔︎    | ✔︎    |   |
 |[pop]          | ❌| | Not Immutable |
 |[push]         | ❌| | Not Immutable |
 |[reduce]       | ✔︎    | ✔︎    |   |
-|[reduceRight]  | ✔︎    | ❌ | `[...this]` internally |
+|[reduceRight]  | ✔︎    | ❌ |   |
 |[reverse]      | ❌| | Not Immutable |
 |[shift]        | ❌| | Not Immutable |
-|[slice]        | ✔︎    | ❌ | `[...this]` internally |
+|[slice]        | ✔︎    | △    | not efficient if any of the arg is negative |
 |[some]         | ✔︎    | ✔︎    |   |
 |[sort]         | ❌| | Not Immutable |
 |[splice]       | ❌| | Not Immutable |

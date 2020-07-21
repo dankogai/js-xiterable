@@ -103,7 +103,6 @@ export class Xiterator {
      * `findIndex` as `Array.prototype.find`
      * @param {Function} predicate the predicate function
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
-     * @returns {Number}
      */
     findIndex(predicate, thisArg=null) {
         return ((it) => {
@@ -118,22 +117,19 @@ export class Xiterator {
      * `includes` as `Array.prototype.includes`
      * 
      * **CAVEAT**: `[...this]` is internally created if `fromIndex` is negative
-     * @param {*} valueToFind the value to find
-     * @param {Object} [fromIndex] Value to use as `this` when executing `fn`
-     * @returns {Boolean}
      */
     includes(valueToFind, fromIndex=0) {
-        return 0 <= fromIndex 
-        ? this.entries().findIndex(v => fromIndex <= v[0] && Object.is(v[1], valueToFind)) > -1
-        : Array.prototype.includes.apply([...this], arguments);
+        return fromIndex < 0 
+        ? [...this].includes(valueToFind, fromIndex)
+        : this.entries().findIndex(
+            v => fromIndex <= v[0] && Object.is(v[1], valueToFind)
+        ) > -1;
     }
     /**
      * `lastIndexOf` as `Array.prototype.find`
-     * @param {*} valueToFind the value to find
-     * @param {Object} [fromIndex] Value to use as `this` when executing `fn`
      */
     lastIndexOf(valueToFind, fromIndex=0) {
-        return Array.prototype.lastIndexOf.apply([...this], arguments);
+        return [...this].lastIndexOf(valueToFind, fromIndex);
     }
     /**
      * `reduce` as `Array.prototype.reduce`
@@ -160,20 +156,30 @@ export class Xiterator {
     /**
      * `flat` as `Array.prototype.flat`
      * 
-     * **CAVEAT**: `[...this]` is internally created
+     * @param {Number} depth specifies how deeply to flatten. defaults to `1`
      * @returns {Xiterator} a new `Xiterator` with flattended elements
      */
-    flat(...args) {
-        return new Xiterator(Array.prototype.flat.apply([...this], args));
+    flat(depth=1) {
+        if (depth === undefined) depth = 1;
+        function* _flatten(iter, depth) {
+            for (const it of iter) {
+                if (typeof it[Symbol.iterator] === 'function' && depth > 0) {
+                    yield* _flatten(it, depth - 1);
+                } else {
+                    yield it;
+                }
+            }
+        }
+        return new Xiterator(_flatten(this, depth));
     }
     /**
      * `flatMap` as `Array.prototype.flatMap`
      * 
-     * **CAVEAT**: `[...this]` is internally created
-     * @returns {Xiterator} a new `Xiterator` with flatMapped elements
+     * @param {Function} fn the mapping function
+     * @param {Object} [thisArg] Value to use as `this` when executing `fn`
      */
-    flatMap(...args) {
-        return new Xiterator(Array.prototype.flatMap.apply([...this], args));
+    flatMap(fn, thisArg=null) {
+        return this.map(fn, thisArg).flat();
     }
     /**
     * `join` as `Array.prototype.join`
@@ -236,11 +242,16 @@ export class Xiterator {
     /**
      * `slice` as `Array.prototype.slice`
      * 
-     * **CAVEAT**: `[...this]` is internally created
+     * **CAVEAT**: `[...this]` is internally created if `start` or `end` is negative
+     * @param {Number} start
+     * @param {Number} end
      * @returns {Xiterator} a new `Xiterator` with sliced elements
      */
-    slice() {
-        return new Xiterator(Array.prototype.slice.apply([...this], arguments));
+    slice(start = 0, end = Number.POSITIVE_INFINITY) {
+        if (start < 0 || end < 0) {
+            return new Xiterator([...this].slice(start, end));
+        }
+        return this.drop(start).take(end - start);
     }
     //// MARK: functional methods not defined above
     /**
