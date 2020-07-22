@@ -342,14 +342,16 @@ export class Xiterator {
         return Xiterator.zip.apply(null, args).map(a => callback.apply(null, a));
     }
     /**
-     *  `xrange` like Python's `xrange()`
+     *  `xrange` like `xrange()` of Python 2 (or `range` of Python 3)
+     *
+     * @param {number} [b] if omitted, returns an infinite stream of `0,1,2...`
+     * @param {number} [e] if omitted, `0..<b`.  otherwise `b..<e`.
+     * @param {number} [d] step between numbers. defaults to `1`
      */
-    static xrange(b = 0, e = Number.POSITIVE_INFINITY, d = 1) {
-        switch (arguments.length) {
-            case 1: [b, e] =    [0, arguments[0]]; break;
-            case 2: [b, e] =    [ ...  arguments]; break;
-            case 3: [b, e, d] = [ ...  arguments]; break;
-        }
+    static xrange(b, e, d) {
+        if (typeof b === 'undefined') [b, e, d] = [0, Number.POSITIVE_INFINITY, 1]
+        if (typeof e === 'undefined') [b, e, d] = [0, b, 1]
+        if (typeof d === 'undefined') [b, e, d] = [b, e, 1]
         return new Xiterator(function*(b, e, d){
             let i = b;
             while (i < e) {
