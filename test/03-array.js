@@ -1,20 +1,37 @@
 import {Xiterator, xiterator, xrange} from '../xiterator.js';
 const $      = chai.expect;
 const should = chai.should;
-describe('[...]', () => {
-    it('[...xiterator(range(4))] === [0,1,2,3]', () =>
-       $([...xiterator(xrange(4))]).to.deep.equal([0,1,2,3])
+const gen = xrange
+const ary = [...gen(4)];
+describe('[...iter]', () => {
+    it('[...xrange(4)] === [0,1,2,3]', () =>
+       $([...xrange(4)]).to.deep.equal([0,1,2,3])
       );
 });
-const gen = (n) =>  xiterator(xrange(n))
-const ary = [...gen(42)];
 describe('.prototype.map', () => {
-    it('[...iter.map(v=>v*v)] === [...iter].map(v=>v*v)', () =>
-       $([...gen(42).map(v=>v*v)]).to.deep.equal(ary.map(v=>v*v))
-    );
+    for (const f of [v=>v*v, (v,i)=>i*v]) {
+        it(`[...iter.map(${f})] === [...iter].map(${f})`, () =>
+            $([...gen(4).map(f)]).to.deep.equal([...gen(4)].map(f))
+        );
+    }
 });
 describe('.prototype.filter', () => {
-    it('[...iter.filter(v=>v%2)] === [...iter].filter(v=>v%2)', () =>
-    $([...gen(42).filter(v=>v%2)]).to.deep.equal(ary.filter(v=>v%2))
-    );
+    for (const f of [v=>v%2, (v,i)=>v===i]) {
+        it(`[...iter.filter(${f})] === [...filter].fiter(${f})`, () =>
+            $([...gen(4).filter(f)]).to.deep.equal([...gen(4)].filter(f))
+        );
+    }
+});
+describe('.prototype.slice', () => {
+    const ary = [...gen(-4,4)];
+    for (const s of ary) {
+        it(`[...iter.slice(${s})] === [...iter].slice(${s})`, () =>
+            $([...gen(-4,4).slice(s)]).to.deep.equal(ary.slice(s))
+        );
+        for (const e of ary) {
+            it(`[...iter.slice(${s},${e})] === [...iter].slice(${s},${e})`, () =>
+                $([...gen(-4,4).slice(s,e)]).to.deep.equal(ary.slice(s,e))
+            );
+        }
+    }
 });
