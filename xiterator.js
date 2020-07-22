@@ -9,7 +9,7 @@ export class Xiterator {
     static get version() {
         return '0.0.0';
     }
-    /*
+    /**
      * `true` if `obj` is iterable.  `false` otherwise.
      */
     static isIterable(obj) {
@@ -18,10 +18,8 @@ export class Xiterator {
         return typeof obj[Symbol.iterator] === 'function';
     }
     /**
-     * Creates an instance of Xiterator.
-     *
      * @constructor
-     * @param {Iterable} obj the source iterator
+     * @param {Iterable} obj the source iterable
      */
     constructor(obj) {
         if (!isIterable(obj)) {
@@ -134,7 +132,9 @@ export class Xiterator {
         ) > -1;
     }
     /**
-     * `lastIndexOf` as `Array.prototype.find`
+     * `lastIndexOf` as `Array.prototype.lastIndexOf`
+     * 
+     * **CAVEAT**: `[...this]` is internally created
      */
     lastIndexOf(valueToFind, fromIndex=0) {
         return [...this].lastIndexOf(valueToFind, fromIndex);
