@@ -259,7 +259,17 @@ export class Xiterator {
         if (start < 0 || end < 0) {
             return new Xiterator([...this].slice(start, end));
         }
-        return this.drop(start).take(end - start);
+        if (end <= start) return new Xiterator([]);
+        // return this.drop(start).take(end - start);
+        return new Xiterator(function*(it){
+            let i = -1;
+            for (const v of it) {
+                ++i;
+                if (i <  start) continue;
+                if (end <=   i) break;
+                yield v;
+            }
+        }(this.iter));
     }
     //// MARK: functional methods not defined above
     /**
