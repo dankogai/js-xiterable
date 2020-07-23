@@ -52,7 +52,7 @@ The following methods in `Array.prototype` are supported as follows.   for any s
 |[push]         | ❌| | Not Immutable |
 |[reduce]       | ✔︎    | ✔︎    |   |
 |[reduceRight]  | ✔︎    | ❌ |   |
-|[reverse]      | ❌| | Not Immutable.  see [reversed](#.reversed) |
+|[reverse]      | ❌| | Not Immutable.  see [reversed](#reversed) |
 |[shift]        | ❌| | Not Immutable |
 |[slice]        | ✔︎    | ✔︎*   | * not efficient if any of the arg is negative |
 |[some]         | ✔︎    | ✔︎    |   |
