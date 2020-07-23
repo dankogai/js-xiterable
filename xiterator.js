@@ -107,14 +107,14 @@ export class Xiterator {
     }
     /**
      * `findIndex` as `Array.prototype.find`
-     * @param {Function} predicate the predicate function
+     * @param {Function} fn the predicate function
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
      */
-    findIndex(predicate, thisArg=null) {
+    findIndex(fn, thisArg=null) {
         return ((it) => {
             let i = 0;
             for (const v of it) {
-                if (predicate.call(thisArg, v, i++, it)) return i-1;
+                if (fn.call(thisArg, v, i++, it)) return i-1;
             }
             return -1;
         })(this.iter);
@@ -273,6 +273,12 @@ export class Xiterator {
     }
     //// MARK: functional methods not defined above
     /**
+     * @returns {Xiterator}
+     */
+    reversed() {
+        return new Xiterator([...this].reverse());
+    }
+    /**
      * @param {Number} n
      * @returns {Xiterator}
      */
@@ -338,11 +344,10 @@ export class Xiterator {
         if (typeof fn !== 'function') throw TypeError(
             `${fn} is not a function.`
         );
-        //let args = [...arguments].slice(1);
-        return Xiterator.zip.apply(null, args).map(a => callback.apply(null, a));
+        return Xiterator.zip.apply(null, args).map(a => fn.apply(null, a));
     }
     /**
-     *  `xrange` like `xrange()` of Python 2 (or `range` of Python 3)
+     *  `xrange` like `xrange()` of Python 2 (or `range()` of Python 3)
      *
      * @param {number} [b] if omitted, returns an infinite stream of `0,1,2...`
      * @param {number} [e] if omitted, `0..<b`.  otherwise `b..<e`.
