@@ -22,6 +22,15 @@ describe('.prototype.filter', () => {
         );
     }
 });
+describe('.prototype.reduce', () => {
+    const f = (a,v)=>a+v;
+    it(`[...iter.reduce(${f})] === [...filter].reduce(${f})`, () =>
+        $([...gen(4).filter(f)]).to.deep.equal([...gen(4)].filter(f))
+    );
+    it(`[...iter.reduce(${f}, '')] === [...filter].reduce(${f}, '')`, () =>
+        $([...gen(4).filter(f, '')]).to.deep.equal([...gen(4)].filter(f, ''))
+)   ;
+});
 describe('.prototype.slice', () => {
     const ary = [...gen(-4,4)];
     for (const s of ary) {
