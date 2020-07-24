@@ -31,37 +31,37 @@ The following methods in `Array.prototype` are supported as follows.   For any m
 [...iter.meth(arg)] // is equivalent [...iter].meth(arg)
 ```
 
-| method        | available? | efficent?| Comment |
+| method        | available? | Comment |
 |:--------------|:----:|:----:|---------|
-|[concat]       | ✔︎    | ✔︎    |   |
-|[copyWithin]   | ❌| | Not Immutable |
-|[entries]      | ✔︎    | ✔︎    |   |
-|[every]        | ✔︎    | ✔︎    |   |
-|[fill]         | ❌| | Not Immutable, see [filled](#filled) |
-|[filter]       | ✔︎    | ✔︎    |   |
-|[find]         | ✔︎    | ✔︎    |   |
-|[findIndex]    | ✔︎    | ✔︎    |   |
-|[flat]         | ✔︎    | ✔︎    |   |
-|[flatMap]      | ✔︎    | ✔︎    |   |
-|[forEach]      | ✔︎    | ✔︎    |   |
-|[includes]     | ✔︎    | ✔︎*   | * throws `RangeError` if the 2nd arg is negative |
-|[indexOf]      | ✔︎    | ✔︎    |   |
-|[join]         | ✔︎    | ✔︎    |   |
-|[keys]         | ✔︎    | ✔︎    |   |
-|[lastIndexOf]  | ❌    | ❌ | need all elements to evaluate |
-|[map]          | ✔︎    | ✔︎    |   |
-|[pop]          | ❌| | Not Immutable |
-|[push]         | ❌| | Not Immutable |
-|[reduce]       | ✔︎    | ✔︎    |   |
-|[reduceRight]  | ✔︎    | ❌ |   |
-|[reverse]      | ❌| | Not Immutable.  see [reversed](#reversed) |
-|[shift]        | ❌| | Not Immutable |
-|[slice]        | ✔︎    | ✔︎*   | * throws `RangeError` if any of the arg is negative |
-|[some]         | ✔︎    | ✔︎    |   |
-|[sort]         | ❌| | Not Immutable |
-|[splice]       | ❌| | Not Immutable |
-|[unshift]      | ❌| | Not Immutable |
-|[filter]       | ✔︎    | ✔︎    |   |
+|[concat]       | ✔︎ |    |
+|[copyWithin]   | ❌ | Not Immutable |
+|[entries]      | ✔︎ |   |
+|[every]        | ✔︎ |   |
+|[fill]         | ❌ | Not Immutable ; see [filled](#filled) |
+|[filter]       | ✔︎ |   |
+|[find]         | ✔︎ |   |
+|[findIndex]    | ✔︎ |   |
+|[flat]         | ✔︎ |   |
+|[flatMap]      | ✔︎ |   |
+|[forEach]      | ✔︎ |   |
+|[includes]     | ✔︎ | ✔︎* | * throws `RangeError` if the 2nd arg is negative |
+|[indexOf]      | ✔︎ |   |
+|[join]         | ✔︎ |   |
+|[keys]         | ✔︎ |   |
+|[lastIndexOf]  | ❌ | need all elements to evaluate |
+|[map]          | ✔︎ |   |
+|[pop]          | ❌ | Not Immutable |
+|[push]         | ❌ | Not Immutable |
+|[reduce]       | ✔︎ |   |
+|[reduceRight]  | ✔︎ | ❌ |   |
+|[reverse]      | ❌ | Not Immutable;  see [reversed](#reversed) |
+|[shift]        | ❌ | Not Immutable |
+|[slice]        | ✔︎ | ✔︎*   | * throws `RangeError` if any of the arg is negative |
+|[some]         | ✔︎ |   |
+|[sort]         | ❌ | Not Immutable |
+|[splice]       | ❌ | Not Immutable |
+|[unshift]      | ❌ | Not Immutable |
+|[filter]       | ✔︎ |   |
 
 [concat]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat
 [copyWithin]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/copyWithin

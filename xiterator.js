@@ -119,18 +119,24 @@ export class Xiterator {
             return -1;
         })(this.iter);
     }
-    /**
-     * `includes` as `Array.prototype.includes`
+     /**
+     * `indexOf` as `Array.prototype.indexOf`
      * 
-     * **CAVEAT**: `[...this]` is internally created if `fromIndex` is negative
      */
-    includes(valueToFind, fromIndex=0) {
+    indexOf(valueToFind, fromIndex=0) {
         if (fromIndex < 0) {
             throw new RangeError("negative index unsupported");
         }
         return this.entries().findIndex(
             v => fromIndex <= v[0] && Object.is(v[1], valueToFind)
-        ) > -1;
+        );
+    }
+    /**
+     * `includes` as `Array.prototype.includes`
+     * 
+     */
+    includes(valueToFind, fromIndex=0) {
+        return this.indexOf(valueToFind, fromIndex) > -1;
     }
     /**
      * `reduce` as `Array.prototype.reduce`
@@ -149,7 +155,6 @@ export class Xiterator {
     /**
      * `reduceRight` as `Array.prototype.reduceRight`
      * 
-     * **CAVEAT**: `[...this]` is internally created
      */
     reduceRight(...args) {
         return Array.prototype.reduceRight.apply([...this], args);
