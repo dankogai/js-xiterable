@@ -1,7 +1,7 @@
 /**
  * xiterator.js
  *
- * @version: 0.0.1
+ * @version: 0.0.2
  * @author: dankogai
  *
 */
@@ -11,7 +11,7 @@ const _mkiter = (gen) => Object.create(null, { [Symbol.iterator]: { value: gen }
  */
 export class Xiterator {
     static get version() {
-        return '0.0.1';
+        return '0.0.2';
     }
     /**
      * `true` if `obj` is iterable.  `false` otherwise.

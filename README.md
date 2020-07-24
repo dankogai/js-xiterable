@@ -43,7 +43,7 @@ import {Xiterator, xiterator} from './xiterator.js`;
 remotely
 
 ```javascript
-import * as _X from 'https://cdn.jsdelivr.net/npm/js-xiterator@0.0.1/xiterator.min.js';
+import * as _X from 'https://cdn.jsdelivr.net/npm/js-xiterator@0.0.2/xiterator.min.js';
 ```
 
 ### commonjs (node.js)
