@@ -37,7 +37,7 @@ The following methods in `Array.prototype` are supported as follows.   For any m
 |[copyWithin]   | ❌ | mutating |
 |[entries]      | ✔︎ |   |
 |[every]        | ✔︎ |   |
-|[fill]         | ❌ | mutating ; see [filled](#filled) |
+|[fill]         | ❌ |mutating ; see [filled](#filled) |
 |[filter]       | ✔︎ |   |
 |[find]         | ✔︎ |   |
 |[findIndex]    | ✔︎ |   |
@@ -54,7 +54,7 @@ The following methods in `Array.prototype` are supported as follows.   For any m
 |[push]         | ❌ | mutating |
 |[reduce]       | ✔︎ |   |
 |[reduceRight]  | ✔︎ | need to iterate backwards |
-|[reverse]      | ❌ | Not Immutable;  see [reversed](#reversed) |
+|[reverse]      | ❌ | mutating; see [reversed](#reversed) |
 |[shift]        | ❌ | mutating |
 |[slice]        | ✔︎*| * throws `RangeError` if any of the arg is negative |
 |[some]         | ✔︎ |   |
