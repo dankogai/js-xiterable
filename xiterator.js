@@ -5,29 +5,31 @@
  * @author: dankogai
  *
 */
-const _mkiter = (gen) => Object.create(null, { [Symbol.iterator]: { value: gen } });
+export const version = '0.0.2';
+/**
+ * `true` if `obj` is iterable.  `false` otherwise.
+ */
+export function isIterable(obj) {
+    if (typeof obj === 'string') return true;  // string is iterable
+    if (obj !== Object(obj)) return false; // other primitives
+    return typeof obj[Symbol.iterator] === 'function';
+}
 /**
  *
  */
 export class Xiterator {
-    static get version() {
-        return '0.0.2';
-    }
-    /**
-     * `true` if `obj` is iterable.  `false` otherwise.
-     */
-    static isIterable(obj) {
-        if (typeof obj === 'string') return true;  // string is iterable
-        if (obj !== Object(obj)) return false; // other primitives
-        return typeof obj[Symbol.iterator] === 'function';
-    }
+    static get version() { return version }
+    static isIterable(obj) { return isIterable(obj) }
     /**
      * @constructor
      * @param {Iterable} obj the source iterable
      */
     constructor(obj) {
         if (!isIterable(obj)) {
-            throw TypeError(`${obj} is not an iterator`);
+            if (typeof obj !== 'function') {
+                throw TypeError(`${obj} is neither iterable or a generator`);
+            }
+            obj = { [Symbol.iterator]: obj }; // obj is a generator
         }
         Object.defineProperty(this, 'seed', { value: obj });
     }
@@ -45,12 +47,12 @@ export class Xiterator {
     */
     map(fn, thisArg = null) {
         let seed = this.seed;
-        return new Xiterator(_mkiter(function* () {
+        return new Xiterator(function* () {
             let i = 0;
             for (const v of seed) {
                 yield fn.call(thisArg, v, i++, seed);
             }
-        }));
+        });
     }
     /**
      * `forEach` as `Array.prototype.map`
@@ -88,13 +90,13 @@ export class Xiterator {
      */
     filter(fn, thisArg = null) {
         let seed = this.seed;
-        return new Xiterator(_mkiter(function* () {
+        return new Xiterator(function* () {
             let i = 0;
             for (const v of seed) {
                 if (!fn.call(thisArg, v, i++, seed)) continue;
                 yield v;
             }
-        }));
+        });
     }
     /**
      * `find` as `Array.prototype.find`
@@ -152,13 +154,6 @@ export class Xiterator {
         return a;
     }
     /**
-     * `reduceRight` as `Array.prototype.reduceRight`
-     * 
-     */
-    // reduceRight(...args) {
-    //     return Array.prototype.reduceRight.apply([...this], args);
-    // }
-    /**
      * `flat` as `Array.prototype.flat`
      * 
      * @param {Number} depth specifies how deeply to flatten. defaults to `1`
@@ -174,7 +169,7 @@ export class Xiterator {
                 }
             }
         }
-        return new Xiterator(_mkiter(() => _flatten(this, depth)));
+        return new Xiterator(() => _flatten(this, depth));
     }
     /**
      * `flatMap` as `Array.prototype.flatMap`
@@ -201,11 +196,8 @@ export class Xiterator {
      */
     every(fn, thisArg = null) {
         return ((it) => {
-            let x = { done: false };
             let i = 0;
-            let a;
-            while (!(x = it.next()).done) {
-                let v = x.value;
+            for (const v of it) {
                 if (!fn.call(thisArg, v, i++, it)) return false;
             }
             return true;
@@ -219,11 +211,8 @@ export class Xiterator {
      */
     some(fn, thisArg = null) {
         return ((it) => {
-            let x = { done: false };
             let i = 0;
-            let a;
-            while (!(x = it.next()).done) {
-                let v = x.value;
+            for (const v of it) {
                 if (fn.call(thisArg, v, i++, it)) return true;
             }
             return false;
@@ -239,10 +228,10 @@ export class Xiterator {
                 for (const v of it) yield v;
             }
         };
-        return new Xiterator(_mkiter(() => _gen(
+        return new Xiterator(() => _gen(
             this.seed,    /* check if v is primitive and wrap if so */
             args.map(v => (Object(v) === v ? v : [v]))
-        )));
+        ));
     }
     /**
      * `slice` as `Array.prototype.slice`
@@ -259,7 +248,7 @@ export class Xiterator {
         if (end <= start) return new Xiterator([]);
         // return this.drop(start).take(end - start);
         let seed = this.seed;
-        return new Xiterator(_mkiter(function* () {
+        return new Xiterator(function* () {
             let i = -1;
             for (const v of seed) {
                 ++i;
@@ -267,7 +256,7 @@ export class Xiterator {
                 if (end <= i) break;
                 yield v;
             }
-        }));
+        });
     }
     //// MARK: functional methods not defined above
     /**
@@ -281,28 +270,26 @@ export class Xiterator {
      * @returns {Xiterator}
      */
     take(n) {
-        let seed = this.seed;
-        return new Xiterator(_mkiter(function* () {
+        return new Xiterator(() => function* (it) {
             let i = 0;
-            for (const v of seed) {
+            for (const v of it) {
                 if (n <= i++) break;
                 yield v;
             }
-        }));
+        }(this.seed));
     }
     /**
      * @param {Number} n
      * @returns {Xiterator}
      */
     drop(n) {
-        let seed = this.seed;
-        return new Xiterator(_mkiter(function* (it) {
+        return new Xiterator(() => function* (it) {
             let i = 0;
-            for (const v of seed) {
+            for (const v of it) {
                 if (i++ < n) continue;
                 yield v;
             }
-        }));
+        }(this.seed));
     }
     /**
      * returns an iterator with all elements replaced with `value`
@@ -315,7 +302,7 @@ export class Xiterator {
      * @returns {Xiterator}
      */
     zip(...args) {
-        return new Xiterator(_mkiter(() => function* (head, rest) {
+        return new Xiterator(() => function* (head, rest) {
             while (true) {
                 let next = head.next();
                 if (next.done) return;
@@ -330,7 +317,7 @@ export class Xiterator {
         }(
             this.map(v => [v])[Symbol.iterator](),
             args.map(v => v[Symbol.iterator]())
-        )));
+        ));
     }
     //// MARK: static methods
     /**
@@ -364,21 +351,21 @@ export class Xiterator {
         if (typeof b === 'undefined') [b, e, d] = [0, Number.POSITIVE_INFINITY, 1]
         if (typeof e === 'undefined') [b, e, d] = [0, b, 1]
         if (typeof d === 'undefined') [b, e, d] = [b, e, 1]
-        return new Xiterator(_mkiter(() => function* (b, e, d) {
+        return new Xiterator(() => function* (b, e, d) {
             let i = b;
             while (i < e) {
                 yield i;
                 i += d;
             }
-        }(b, e, d)));
+        }(b, e, d));
     }
     /**
      */
     static repeat(value, times = Number.POSITIVE_INFINITY) {
-        return new Xiterator(_mkiter(function* () {
+        return new Xiterator(function* () {
             let i = 0;
             while (i++ < times) yield value;
-        }()));
+        });
     }
 };
 //Xiterator.version = version;
@@ -387,7 +374,6 @@ export class Xiterator {
  * @returns {Xiterator} simply returns `new Xiterator(it)`
  */
 export const xiterator = (it) => new Xiterator(it);
-export const isIterable = Xiterator.isIterable;
 export const zip = Xiterator.zip;
 export const zipWith = Xiterator.zipWith;
 export const xrange = Xiterator.xrange;
