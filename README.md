@@ -32,35 +32,35 @@ The following methods in `Array.prototype` are supported as follows.   For any m
 ```
 
 | method        | available? | Comment |
-|:--------------|:----:|:----:|---------|
+|:--------------|:----:|:---------|
 |[concat]       | ✔︎ |    |
-|[copyWithin]   | ❌ | Not Immutable |
+|[copyWithin]   | ❌ | mutating |
 |[entries]      | ✔︎ |   |
 |[every]        | ✔︎ |   |
-|[fill]         | ❌ | Not Immutable ; see [filled](#filled) |
+|[fill]         | ❌ | mutating ; see [filled](#filled) |
 |[filter]       | ✔︎ |   |
 |[find]         | ✔︎ |   |
 |[findIndex]    | ✔︎ |   |
 |[flat]         | ✔︎ |   |
 |[flatMap]      | ✔︎ |   |
 |[forEach]      | ✔︎ |   |
-|[includes]     | ✔︎ | ✔︎* | * throws `RangeError` if the 2nd arg is negative |
+|[includes]     | ✔︎*| * throws `RangeError` if the 2nd arg is negative |
 |[indexOf]      | ✔︎ |   |
 |[join]         | ✔︎ |   |
 |[keys]         | ✔︎ |   |
-|[lastIndexOf]  | ❌ | need all elements to evaluate |
+|[lastIndexOf]  | ❌ | need to iterate backwards |
 |[map]          | ✔︎ |   |
-|[pop]          | ❌ | Not Immutable |
-|[push]         | ❌ | Not Immutable |
+|[pop]          | ❌ | mutating |
+|[push]         | ❌ | mutating |
 |[reduce]       | ✔︎ |   |
-|[reduceRight]  | ✔︎ | ❌ |   |
+|[reduceRight]  | ✔︎ | need to iterate backwards |
 |[reverse]      | ❌ | Not Immutable;  see [reversed](#reversed) |
-|[shift]        | ❌ | Not Immutable |
-|[slice]        | ✔︎ | ✔︎*   | * throws `RangeError` if any of the arg is negative |
+|[shift]        | ❌ | mutating |
+|[slice]        | ✔︎*| * throws `RangeError` if any of the arg is negative |
 |[some]         | ✔︎ |   |
-|[sort]         | ❌ | Not Immutable |
-|[splice]       | ❌ | Not Immutable |
-|[unshift]      | ❌ | Not Immutable |
+|[sort]         | ❌ | mutating |
+|[splice]       | ❌ | mutating |
+|[unshift]      | ❌ | mutating |
 |[filter]       | ✔︎ |   |
 
 [concat]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat
