@@ -53,7 +53,7 @@ The following methods in `Array.prototype` are supported as follows.   For any m
 |[pop]          | ❌ | mutating |
 |[push]         | ❌ | mutating |
 |[reduce]       | ✔︎ |   |
-|[reduceRight]  | ✔︎ | need to iterate backwards |
+|[reduceRight]  | ❌ | need to iterate backwards |
 |[reverse]      | ❌ | mutating; see [reversed](#reversed) |
 |[shift]        | ❌ | mutating |
 |[slice]        | ✔︎*| * throws `RangeError` if any of the arg is negative |
