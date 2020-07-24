@@ -125,19 +125,12 @@ export class Xiterator {
      * **CAVEAT**: `[...this]` is internally created if `fromIndex` is negative
      */
     includes(valueToFind, fromIndex=0) {
-        return fromIndex < 0 
-        ? [...this].includes(valueToFind, fromIndex)
-        : this.entries().findIndex(
+        if (fromIndex < 0) {
+            throw new RangeError("negative index unsupported");
+        }
+        return this.entries().findIndex(
             v => fromIndex <= v[0] && Object.is(v[1], valueToFind)
         ) > -1;
-    }
-    /**
-     * `lastIndexOf` as `Array.prototype.lastIndexOf`
-     * 
-     * **CAVEAT**: `[...this]` is internally created
-     */
-    lastIndexOf(valueToFind, fromIndex=0) {
-        return [...this].lastIndexOf(valueToFind, fromIndex);
     }
     /**
      * `reduce` as `Array.prototype.reduce`
@@ -257,7 +250,7 @@ export class Xiterator {
      */
     slice(start = 0, end = Number.POSITIVE_INFINITY) {
         if (start < 0 || end < 0) {
-            return new Xiterator([...this].slice(start, end));
+            throw new RangeError("negative index unsupported");
         }
         if (end <= start) return new Xiterator([]);
         // return this.drop(start).take(end - start);
@@ -303,6 +296,13 @@ export class Xiterator {
                 yield v;
             }
         }(this.iter));
+    }
+    /**
+     * returns an iterator with all elements replaced with `value`
+     * @param {*} value the value to replace each element
+     */
+    filled(value) {
+        return this.map(() => value)
     }
     /**
      * @returns {Xiterator}
@@ -365,6 +365,14 @@ export class Xiterator {
             }
         }(b, e, d));
     }
+    /**
+     */
+    static repeat(value, times=Number.POSITIVE_INFINITY) {
+        return new Xiterator(function *(){
+            let i = 0;
+            while (i++ < times) yield value;
+        }());
+    }
 };
 //Xiterator.version = version;
 /**
@@ -375,3 +383,4 @@ export const isIterable = Xiterator.isIterable;
 export const zip = Xiterator.zip;
 export const zipWith = Xiterator.zipWith;
 export const xrange = Xiterator.xrange;
+export const repeat = Xiterator.repeat;

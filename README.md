@@ -25,9 +25,11 @@ const o = [...$(count(10)).filter(v=>v%2).map(v=>v*v)]; // [1, 9, 25, 49, 81]
 
 ## vs. `Array.prototype`
 
-The following methods in `Array.prototype` are supported as follows.   for any supported `meth`, `[...iter.meth(arg)]` is equvalent to `[...iter].meth(arg)`.
+The following methods in `Array.prototype` are supported as follows.   For any method `meth` in the table below, the following identity holds.
 
-"efficient" in this table means no temporary array `[...this]` is internally created.  As you may have noticed, those methods need to access elements from backwords but iteraters in general can only move forward.  So `Xiterator` resorts to materialize all elements with `[...this]` internally.
+```javascript
+[...iter.meth(arg)] // is equivalent [...iter].meth(arg)
+```
 
 | method        | available? | efficent?| Comment |
 |:--------------|:----:|:----:|---------|
@@ -35,18 +37,18 @@ The following methods in `Array.prototype` are supported as follows.   for any s
 |[copyWithin]   | ❌| | Not Immutable |
 |[entries]      | ✔︎    | ✔︎    |   |
 |[every]        | ✔︎    | ✔︎    |   |
-|[fill]         | ❌| | Not Immutable |
+|[fill]         | ❌| | Not Immutable, see [filled](#filled) |
 |[filter]       | ✔︎    | ✔︎    |   |
 |[find]         | ✔︎    | ✔︎    |   |
 |[findIndex]    | ✔︎    | ✔︎    |   |
 |[flat]         | ✔︎    | ✔︎    |   |
 |[flatMap]      | ✔︎    | ✔︎    |   |
 |[forEach]      | ✔︎    | ✔︎    |   |
-|[includes]     | ✔︎    | ✔︎*   | * not efficient if the 2nd arg is negative |
+|[includes]     | ✔︎    | ✔︎*   | * throws `RangeError` if the 2nd arg is negative |
 |[indexOf]      | ✔︎    | ✔︎    |   |
 |[join]         | ✔︎    | ✔︎    |   |
 |[keys]         | ✔︎    | ✔︎    |   |
-|[lastIndexOf]  | ✔︎    | ❌ | need all elements to evaluate |
+|[lastIndexOf]  | ❌    | ❌ | need all elements to evaluate |
 |[map]          | ✔︎    | ✔︎    |   |
 |[pop]          | ❌| | Not Immutable |
 |[push]         | ❌| | Not Immutable |
@@ -54,7 +56,7 @@ The following methods in `Array.prototype` are supported as follows.   for any s
 |[reduceRight]  | ✔︎    | ❌ |   |
 |[reverse]      | ❌| | Not Immutable.  see [reversed](#reversed) |
 |[shift]        | ❌| | Not Immutable |
-|[slice]        | ✔︎    | ✔︎*   | * not efficient if any of the arg is negative |
+|[slice]        | ✔︎    | ✔︎*   | * throws `RangeError` if any of the arg is negative |
 |[some]         | ✔︎    | ✔︎    |   |
 |[sort]         | ❌| | Not Immutable |
 |[splice]       | ❌| | Not Immutable |
@@ -97,27 +99,35 @@ The following methods in `Array.prototype` are supported as follows.   for any s
 
 Returns `[...this]`.
 
-#### `.take(n)`
+#### `.take`
 
-#### `.drop(n)`
+`.take(n)` returns the iterator that takes first `n` elements of the original iterator.
+
+#### `.drop`
+
+.drop(n)` returns the iterator that drops first `n` elements of the original iterator.
 
 #### `.zip`
 
-zips iterators in the args. Static version also [available](#Xiterator.zip).
+`.zip(...args)` zips iterators in the `args`. Static version also [available](#Xiteratorzip).
 
 ```javascript
 [...Xiterator.xrange().zip('abcd')]   // [[0,"a"],[1,"b"],[2,"c"],[3,"d"]]
 ```
 
-#### `.reversed()`
+#### `.filled`
 
-Returns the reversed iterator.  Simply `new Xiterator([...iter].reverse)`.
+`.filled(value)` returns an iterator with all elements replaced with `value`.
+
+#### `.reversed`
+
+Reversed iterator `.reversed()`.  Simply  `new Xiterator([...iter].reverse())`.
 
 ## static methods
 
 They are also exported so you can `import {zip,zipWith} from 'xiterator.js'`
 
-#### `Xiterator.zip()`
+#### `Xiterator.zip`
 
 Zips iterators in the argument.
 
@@ -125,7 +135,7 @@ Zips iterators in the argument.
 [...zip([0,1,2,3], 'abcd')]   // [[0,"a"],[1,"b"],[2,"c"],[3,"d"]]
 ```
 
-#### `Xiterator.zipWith()`
+#### `Xiterator.zipWith`
 
 Zips iterators and then feed it to the function.
 
@@ -133,7 +143,7 @@ Zips iterators and then feed it to the function.
 [...Xiterator.zipWith((a,b)=>a+b, 'bcdfg', 'aeiou')]    // ["ba","ce","di","fo","gu"]
 ```
 
-#### `Xiterator.xrange()`
+#### `Xiterator.xrange`
 
 `xrange()` as Python 2 (or `range()` of Python 3).
 
@@ -145,3 +155,10 @@ for (const i of Xiterator.xrange()) // infinite stream of 0, 1, ...
 [...Xiterator.xrange(1,5)]      // [1, 2, 3, 4]
 [...Xiterator.xrange(1,5,2)]    // [1, 3] 
 ```
+
+### `Xiterator.repeat`
+
+Returns an iterator with all elements are the same.
+
+* `Xiterator.repeat(value)` returns an infinite stream of `value`
+* `Xiterator.repeat(value, n)` returns repeats `value` for `n` times.

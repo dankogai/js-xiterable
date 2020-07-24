@@ -32,14 +32,14 @@ describe('.prototype.reduce', () => {
 )   ;
 });
 describe('.prototype.slice', () => {
-    const ary = [...gen(-4,4)];
+    // const ary = [...gen(-4,4)];
     for (const s of ary) {
         it(`[...iter.slice(${s})] === [...iter].slice(${s})`, () =>
-            $([...gen(-4,4).slice(s)]).to.deep.equal(ary.slice(s))
+            $([...gen(4).slice(s)]).to.deep.equal(ary.slice(s))
         );
         for (const e of ary) {
             it(`[...iter.slice(${s},${e})] === [...iter].slice(${s},${e})`, () =>
-                $([...gen(-4,4).slice(s,e)]).to.deep.equal(ary.slice(s,e))
+                $([...gen(4).slice(s,e)]).to.deep.equal(ary.slice(s,e))
             );
         }
     }
