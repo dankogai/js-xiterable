@@ -6,30 +6,77 @@ Make ES6 Iterators Functional Again
 
 ## Synopsis
 
+Suppose we have an iterator…
+
 ```javascript
-const count = function*(n){
+function* count(n) {
     let i = 0;
-    while (i < n) {
-        yield i++;
-    }
+    while (i < n) yield i++;
 };
 ```
 
+We make it more function simply by wrapping it.
+
 ```javascript
-import {Xiterator, xiterator} from './xiterator.js';
-const $ = xiterator;
+import {Xiterator, xiterator as $} from './xiterator.js';
 const n = [...  count(10)];    // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 const o = [...$(count(10)).filter(v=>v%2).map(v=>v*v)]; // [1, 9, 25, 49, 81]
 [...Xiterator.zip(n, o)]       // [[0, 1], [1, 9], [2, 25], [3, 49], [4, 81]]
 ```
 
-## vs. `Array.prototype`
+## Description
 
-The following methods in `Array.prototype` are supported as follows.   For any method `meth` in the table below, the following identity holds.
+### Install
+
+```shell
+npm install js-xiterator
+```
+
+### Usage
+
+locally
 
 ```javascript
-[...iter.meth(arg)] // is equivalent [...iter].meth(arg)
+import {Xiterator, xiterator} from './xiterator.js`;
 ```
+
+remotely
+
+```javascript
+import * as _X from 'https://cdn.jsdelivr.net/npm/js-xiterator@0.0.0/xiterator.min.js';
+```
+
+### commonjs (node.js)
+
+use [babel] or [esm].
+
+[babel]: https://babeljs.io
+[esm]: https://github.com/standard-things/esm
+
+```shell
+% node -r esm
+Welcome to Node.js v14.5.0.
+Type ".help" for more information.
+> import * as _X from './xiterator.js'
+undefined
+> _X
+[Module] {
+  Xiterator: [Function: Xiterator],
+  isIterable: [Function: isIterable],
+  repeat: [Function: repeat],
+  xiterator: [Function: xiterator],
+  xrange: [Function: xrange],
+  zip: [Function: zip],
+  zipWith: [Function: zipWith]
+}
+> [..._X.xrange(10).filter(v=>v%2).map(v=>v*v)]
+[ 1, 9, 25, 49, 81 ]
+> 
+```
+
+## methods found in `Array.prototype`
+
+The following methods in `Array.prototype` are supported as follows.   For any method `meth`, `[...iter.meth(arg)]` deeply equals to `[...iter].meth(arg)`.
 
 | method        | available? | Comment |
 |:--------------|:----:|:---------|
@@ -37,7 +84,7 @@ The following methods in `Array.prototype` are supported as follows.   For any m
 |[copyWithin]   | ❌ | mutating |
 |[entries]      | ✔︎ |   |
 |[every]        | ✔︎ |   |
-|[fill]         | ❌ |mutating ; see [filled](#filled) |
+|[fill]         | ❌ | mutating ; see [repeat](#repeat) |
 |[filter]       | ✔︎ |   |
 |[find]         | ✔︎ |   |
 |[findIndex]    | ✔︎ |   |
@@ -62,6 +109,12 @@ The following methods in `Array.prototype` are supported as follows.   For any m
 |[splice]       | ❌ | mutating |
 |[unshift]      | ❌ | mutating |
 |[filter]       | ✔︎ |   |
+Unavalable methods either:
+
+* mutating.  that is, change the invoking object. e.g. `pop`, `push`…
+* need to iterate backwards.  e.g. `lastIndexOf()`, `reduceRight()`…
+
+
 
 [concat]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat
 [copyWithin]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/copyWithin

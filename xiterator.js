@@ -381,9 +381,10 @@ export class Xiterator {
 };
 //Xiterator.version = version;
 /**
- * @returns {Xiterator} simply returns `new Xiterator(obj)`
+ * @param {Iterable} it
+ * @returns {Xiterator} simply returns `new Xiterator(it)`
  */
-export const xiterator = (obj) => new Xiterator(obj);
+export const xiterator = (it) => new Xiterator(it);
 export const isIterable = Xiterator.isIterable;
 export const zip = Xiterator.zip;
 export const zipWith = Xiterator.zipWith;
