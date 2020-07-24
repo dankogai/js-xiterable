@@ -5,6 +5,10 @@
  * @author: dankogai
  *
 */
+const _mkiter = (gen) => Object.create(null, { [Symbol.iterator]: { value: gen } });
+/**
+ *
+ */
 export class Xiterator {
     static get version() {
         return '0.0.1';
@@ -14,7 +18,7 @@ export class Xiterator {
      */
     static isIterable(obj) {
         if (typeof obj === 'string') return true;  // string is iterable
-        if (obj !== Object(obj))     return false; // other primitives
+        if (obj !== Object(obj)) return false; // other primitives
         return typeof obj[Symbol.iterator] === 'function';
     }
     /**
@@ -25,10 +29,10 @@ export class Xiterator {
         if (!isIterable(obj)) {
             throw TypeError(`${obj} is not an iterator`);
         }
-        Object.defineProperty(this, 'iter', { value:obj[Symbol.iterator]() });
+        Object.defineProperty(this, 'seed', { value: obj });
     }
     [Symbol.iterator]() {
-        return this.iter;
+        return this.seed[Symbol.iterator]();
     }
     toArray() {
         return [...this];
@@ -39,32 +43,31 @@ export class Xiterator {
      * @param {Function} fn the mapping function
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
     */
-    map(fn, thisArg=null) {
-        return new Xiterator(function*(it){
+    map(fn, thisArg = null) {
+        let seed = this.seed;
+        return new Xiterator(_mkiter(function* () {
             let i = 0;
-            for (const v of it) {
-                yield fn.call(thisArg, v, i++, it);
+            for (const v of seed) {
+                yield fn.call(thisArg, v, i++, seed);
             }
-        }(this.iter));
+        }));
     }
     /**
      * `forEach` as `Array.prototype.map`
      * @param {Function} fn the callback function
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
     */
-    forEach(fn, thisArg=null) {
-        ((it) => {
-            let i = 0;
-            for (const v of it) {
-                fn.call(thisArg, v, i++, it);
-            }
-        })(this.iter);
+    forEach(fn, thisArg = null) {
+        let i = 0;
+        for (const v of this.seed) {
+            fn.call(thisArg, v, i++, this.seed);
+        }
     }
     /**
     * `entries` as `Array.prototype.entries`
     */
     entries() {
-       return this.map((v, i) => [i, v]);
+        return this.map((v, i) => [i, v]);
     }
     /**
     * `keys` as `Array.prototype.keys`
@@ -83,47 +86,44 @@ export class Xiterator {
      * @param {Function} fn the predicate function
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
      */
-    filter(fn, thisArg=null) {
-        return new Xiterator(function*(it){
+    filter(fn, thisArg = null) {
+        let seed = this.seed;
+        return new Xiterator(_mkiter(function* () {
             let i = 0;
-            for (const v of it) {
-                if (!fn.call(thisArg, v, i++, it)) continue;
+            for (const v of seed) {
+                if (!fn.call(thisArg, v, i++, seed)) continue;
                 yield v;
             }
-        }(this.iter));
+        }));
     }
     /**
      * `find` as `Array.prototype.find`
      * @param {Function} fn the predicate function
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
      */
-    find(fn, thisArg=null) {
-        return ((it) => {
-            let i = 0;
-            for (const v of it) {
-                if (fn.call(thisArg, v, i++, it)) return v;
-            }
-        })(this.iter);
+    find(fn, thisArg = null) {
+        let i = 0;
+        for (const v of this.seed) {
+            if (fn.call(thisArg, v, i++, this.seed)) return v;
+        }
     }
     /**
      * `findIndex` as `Array.prototype.find`
      * @param {Function} fn the predicate function
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
      */
-    findIndex(fn, thisArg=null) {
-        return ((it) => {
-            let i = 0;
-            for (const v of it) {
-                if (fn.call(thisArg, v, i++, it)) return i-1;
-            }
-            return -1;
-        })(this.iter);
+    findIndex(fn, thisArg = null) {
+        let i = 0;
+        for (const v of this.seed) {
+            if (fn.call(thisArg, v, i++, this.seed)) return i - 1;
+        }
+        return -1;
     }
-     /**
-     * `indexOf` as `Array.prototype.indexOf`
-     * 
-     */
-    indexOf(valueToFind, fromIndex=0) {
+    /**
+    * `indexOf` as `Array.prototype.indexOf`
+    * 
+    */
+    indexOf(valueToFind, fromIndex = 0) {
         if (fromIndex < 0) {
             throw new RangeError("negative index unsupported");
         }
@@ -135,7 +135,7 @@ export class Xiterator {
      * `includes` as `Array.prototype.includes`
      * 
      */
-    includes(valueToFind, fromIndex=0) {
+    includes(valueToFind, fromIndex = 0) {
         return this.indexOf(valueToFind, fromIndex) > -1;
     }
     /**
@@ -144,29 +144,27 @@ export class Xiterator {
      * @param {Object} [initialValue] the initial value
      */
     reduce(fn, initialValue) {
-        return ((it) => {
-            let [a, i] = 1 < arguments.length ? [initialValue, 0] : [it.next().value, 1]
-            for (const v of it) {
-                a = fn(a, v, i++, it);
-            }
-            return a;
-        })(this.iter);
+        let it = this.seed[Symbol.iterator]();
+        let [a, i] = 1 < arguments.length ? [initialValue, 0] : [it.next().value, 1];
+        for (const v of it) {
+            a = fn(a, v, i++, this.seed);
+        }
+        return a;
     }
     /**
      * `reduceRight` as `Array.prototype.reduceRight`
      * 
      */
-    reduceRight(...args) {
-        return Array.prototype.reduceRight.apply([...this], args);
-    }
+    // reduceRight(...args) {
+    //     return Array.prototype.reduceRight.apply([...this], args);
+    // }
     /**
      * `flat` as `Array.prototype.flat`
      * 
      * @param {Number} depth specifies how deeply to flatten. defaults to `1`
      * @returns {Xiterator} a new `Xiterator` with flattended elements
      */
-    flat(depth=1) {
-        if (depth === undefined) depth = 1;
+    flat(depth = 1) {
         function* _flatten(iter, depth) {
             for (const it of iter) {
                 if (isIterable(it) && depth > 0) {
@@ -176,7 +174,7 @@ export class Xiterator {
                 }
             }
         }
-        return new Xiterator(_flatten(this, depth));
+        return new Xiterator(_mkiter(() => _flatten(this, depth)));
     }
     /**
      * `flatMap` as `Array.prototype.flatMap`
@@ -184,7 +182,7 @@ export class Xiterator {
      * @param {Function} fn the mapping function
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
      */
-    flatMap(fn, thisArg=null) {
+    flatMap(fn, thisArg = null) {
         return this.map(fn, thisArg).flat();
     }
     /**
@@ -201,9 +199,9 @@ export class Xiterator {
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
      * @returns {Boolean}
      */
-    every(fn, thisArg=null) {
+    every(fn, thisArg = null) {
         return ((it) => {
-            let x = {done:false};
+            let x = { done: false };
             let i = 0;
             let a;
             while (!(x = it.next()).done) {
@@ -211,7 +209,7 @@ export class Xiterator {
                 if (!fn.call(thisArg, v, i++, it)) return false;
             }
             return true;
-        })(this.iter);
+        })(this.seed);
     }
     /**
      * `some` as `Array.prototype.some`
@@ -219,9 +217,9 @@ export class Xiterator {
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
      * @returns {Boolean}
      */
-    some(fn, thisArg=null) {
+    some(fn, thisArg = null) {
         return ((it) => {
-            let x = {done:false};
+            let x = { done: false };
             let i = 0;
             let a;
             while (!(x = it.next()).done) {
@@ -229,21 +227,22 @@ export class Xiterator {
                 if (fn.call(thisArg, v, i++, it)) return true;
             }
             return false;
-        })(this.iter);
+        })(this.seed);
     }
     /**
      * `concat` as `Array.prototype.concat`
      */
     concat(...args) {
-        return new Xiterator(function*(head, rest){
+        function* _gen(head, rest) {
             for (const v of head) yield v;
             for (const it of rest) {
                 for (const v of it) yield v;
             }
-        }(
-            this.iter,    /* check if v is primitive and wrap if so */
-            args.map(v => (Object(v) === v ? v : [v])[Symbol.iterator]())
-        ));
+        };
+        return new Xiterator(_mkiter(() => _gen(
+            this.seed,    /* check if v is primitive and wrap if so */
+            args.map(v => (Object(v) === v ? v : [v]))
+        )));
     }
     /**
      * `slice` as `Array.prototype.slice`
@@ -259,48 +258,51 @@ export class Xiterator {
         }
         if (end <= start) return new Xiterator([]);
         // return this.drop(start).take(end - start);
-        return new Xiterator(function*(it){
+        let seed = this.seed;
+        return new Xiterator(_mkiter(function* () {
             let i = -1;
-            for (const v of it) {
+            for (const v of seed) {
                 ++i;
-                if (i <  start) continue;
-                if (end <=   i) break;
+                if (i < start) continue;
+                if (end <= i) break;
                 yield v;
             }
-        }(this.iter));
+        }));
     }
     //// MARK: functional methods not defined above
     /**
      * @returns {Xiterator}
      */
-    reversed() {
-        return new Xiterator([...this].reverse());
-    }
+    // reversed() {
+    //     return new Xiterator([...this].reverse());
+    // }
     /**
      * @param {Number} n
      * @returns {Xiterator}
      */
     take(n) {
-        return new Xiterator(function*(it){
+        let seed = this.seed;
+        return new Xiterator(_mkiter(function* () {
             let i = 0;
-            for (const v of it) {
+            for (const v of seed) {
                 if (n <= i++) break;
                 yield v;
             }
-        }(this.iter));
+        }));
     }
     /**
      * @param {Number} n
      * @returns {Xiterator}
      */
     drop(n) {
-        return new Xiterator(function*(it){
+        let seed = this.seed;
+        return new Xiterator(_mkiter(function* (it) {
             let i = 0;
-            for (const v of it) {
+            for (const v of seed) {
                 if (i++ < n) continue;
                 yield v;
             }
-        }(this.iter));
+        }));
     }
     /**
      * returns an iterator with all elements replaced with `value`
@@ -313,7 +315,7 @@ export class Xiterator {
      * @returns {Xiterator}
      */
     zip(...args) {
-        return new Xiterator(function*(head, rest) {
+        return new Xiterator(_mkiter(() => function* (head, rest) {
             while (true) {
                 let next = head.next();
                 if (next.done) return;
@@ -328,15 +330,15 @@ export class Xiterator {
         }(
             this.map(v => [v])[Symbol.iterator](),
             args.map(v => v[Symbol.iterator]())
-        ));
+        )));
     }
     //// MARK: static methods
     /**
      * @returns {Xiterator}
      */
     static zip(arg0, ...args) {
-        if (typeof arg0[Symbol.iterator] !== 'function') {
-            throw TypeError(`${arg0} is not an iterator`);
+        if (isIterable(arg0)) {
+            throw TypeError(`${arg0} is not iterable`);
         }
         let it = new Xiterator(arg0);
         return it.zip.apply(it, args);
@@ -362,21 +364,21 @@ export class Xiterator {
         if (typeof b === 'undefined') [b, e, d] = [0, Number.POSITIVE_INFINITY, 1]
         if (typeof e === 'undefined') [b, e, d] = [0, b, 1]
         if (typeof d === 'undefined') [b, e, d] = [b, e, 1]
-        return new Xiterator(function*(b, e, d){
+        return new Xiterator(_mkiter(() => function* (b, e, d) {
             let i = b;
             while (i < e) {
                 yield i;
                 i += d;
             }
-        }(b, e, d));
+        }(b, e, d)));
     }
     /**
      */
-    static repeat(value, times=Number.POSITIVE_INFINITY) {
-        return new Xiterator(function *(){
+    static repeat(value, times = Number.POSITIVE_INFINITY) {
+        return new Xiterator(_mkiter(function* () {
             let i = 0;
             while (i++ < times) yield value;
-        }());
+        }()));
     }
 };
 //Xiterator.version = version;
