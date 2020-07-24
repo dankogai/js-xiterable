@@ -1,12 +1,7 @@
-import {Xiterator, xiterator, xrange} from '../xiterator.js';
+import * as _Module from '../xiterator.js';
 describe('import', () => {
-  it('Xiterator is a function', () => 
-    chai.expect(typeof Xiterator).to.equal('function')
-  );
-  it('xiterator is a function', () =>
-    chai.expect(typeof xiterator).to.equal('function')
-  );
-  it('range is a function', () =>
-    chai.expect(typeof xrange).to.equal('function')
-  );
+  for (const k in _Module) {
+    const tn = k === 'version' ? 'string' : 'function';
+    it(`${k} is a ${tn}`, () => chai.expect(typeof _Module[k]).to.equal(tn));
+  }
 });
