@@ -1,13 +1,13 @@
 /**
  * xiterator.js
  *
- * @version: 0.0.0
+ * @version: 0.0.1
  * @author: dankogai
  *
 */
 export class Xiterator {
     static get version() {
-        return '0.0.0';
+        return '0.0.1';
     }
     /**
      * `true` if `obj` is iterable.  `false` otherwise.
