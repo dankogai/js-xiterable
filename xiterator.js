@@ -33,6 +33,24 @@ export class Xiterator {
         }
         Object.defineProperty(this, 'seed', { value: obj });
     }
+    /**
+     * does `new`
+     * @param {*} args
+     * @returns {Xiterator}
+     */
+    static make(...args) {
+        return new (Function.prototype.bind.apply(this, [null].concat(args)));
+    }
+    /**
+     * Same as `make` but takes a single array `arg`
+     * 
+     * cf. https://stackoverflow.com/questions/1606797/use-of-apply-with-new-operator-is-this-possible
+     * @param {Array} arg
+     * @returns {Xiterator}
+     */
+    static vmake(arg) {
+        return new (Function.prototype.bind.apply(this, [null].concat(arg)));
+    }
     [Symbol.iterator]() {
         return this.seed[Symbol.iterator]();
     }
@@ -324,9 +342,6 @@ export class Xiterator {
      * @returns {Xiterator}
      */
     static zip(arg0, ...args) {
-        if (isIterable(arg0)) {
-            throw TypeError(`${arg0} is not iterable`);
-        }
         let it = new Xiterator(arg0);
         return it.zip.apply(it, args);
     }
@@ -368,12 +383,7 @@ export class Xiterator {
         });
     }
 };
-//Xiterator.version = version;
-/**
- * @param {Iterable} it
- * @returns {Xiterator} simply returns `new Xiterator(it)`
- */
-export const xiterator = (it) => new Xiterator(it);
+export const xiterator = (obj) => new Xiterator(obj);
 export const zip = Xiterator.zip;
 export const zipWith = Xiterator.zipWith;
 export const xrange = Xiterator.xrange;
