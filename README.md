@@ -112,7 +112,7 @@ The following methods in `Array.prototype` are supported as follows.   For any m
 |[push]         | ❌ | mutating |
 |[reduce]       | ✔︎ |   |
 |[reduceRight]  | ❌ | need to iterate backwards |
-|[reverse]      | ❌ | mutating; see [reversed](#reversed) |
+|[reverse]      | ❌ | mutating |
 |[shift]        | ❌ | mutating |
 |[slice]        | ✔︎*| * throws `RangeError` if any of the arg is negative |
 |[some]         | ✔︎ |   |
@@ -177,14 +177,6 @@ Returns `[...this]`.
 ```javascript
 [...Xiterable.xrange().zip('abcd')]   // [[0,"a"],[1,"b"],[2,"c"],[3,"d"]]
 ```
-
-#### `.filled`
-
-`.filled(value)` returns an iterator with all elements replaced with `value`.
-
-#### `.reversed`
-
-Reversed iterator `.reversed()`.  Simply  `new Xiterable([...iter].reverse())`.
 
 ## static methods
 
