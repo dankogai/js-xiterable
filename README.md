@@ -39,13 +39,20 @@ npm install js-xiterable
 locally
 
 ```javascript
-import {Xiterable, xiterable} from './xiterable.js`;
+import {
+  Xiterable,
+  xiterable,
+  zip,
+  zipWith,
+  xrange,
+  repeat
+} from './xiterable.js`;
 ```
 
 remotely
 
 ```javascript
-import * as _X from 'https://cdn.jsdelivr.net/npm/js-xiterable@0.0.3/xiterable.min.js';
+import {Xiterable} from 'https://cdn.jsdelivr.net/npm/js-xiterable@0.0.3/xiterable.min.js';
 ```
 
 ### commonjs (node.js)
@@ -78,9 +85,7 @@ undefined
 
 ## Description
 
-
-
-## methods found in `Array.prototype`
+### instance methods found in `Array.prototype`
 
 The following methods in `Array.prototype` are supported as follows.   For any method `meth`, `[...iter.meth(arg)]` deeply equals to `[...iter].meth(arg)`.
 
@@ -90,7 +95,7 @@ The following methods in `Array.prototype` are supported as follows.   For any m
 |[copyWithin]   | ❌ | mutating |
 |[entries]      | ✔︎ |   |
 |[every]        | ✔︎ |   |
-|[fill]         | ❌ | mutating ; see [repeat](#repeat) |
+|[fill]         | ❌ | mutating ; see [repeat](#xiterablerepeat) |
 |[filter]       | ✔︎ |   |
 |[find]         | ✔︎ |   |
 |[findIndex]    | ✔︎ |   |
@@ -183,14 +188,25 @@ Reversed iterator `.reversed()`.  Simply  `new Xiterable([...iter].reverse())`.
 
 ## static methods
 
-They are also exported so you can `import {zip,zipWith} from 'xiterable.js'`
+They are also exported so you can:
+
+```javascript
+import {repeat,xrange,zip,zipWith} from 'xiterable.js'
+```
+Examples below assumes
+
+```javascript
+import {Xiterable} from 'xiterable.js'.
+```
+
+Examples below assumes
 
 #### `Xiterable.zip`
 
 Zips iterators in the argument.
 
 ```javascript
-[...zip([0,1,2,3], 'abcd')]   // [[0,"a"],[1,"b"],[2,"c"],[3,"d"]]
+[...Xiterable.zip([0,1,2,3], 'abcd')]   // [[0,"a"],[1,"b"],[2,"c"],[3,"d"]]
 ```
 
 #### `Xiterable.zipWith`
@@ -206,9 +222,12 @@ Zips iterators and then feed it to the function.
 `xrange()` as Python 2 (or `range()` of Python 3).
 
 ```javascript
-for (const i of Xiterable.xrange()) // infinite stream of 0, 1, ...
+for (const i of Xiterable.xrange()){ // infinite stream of 0, 1, ...
     console.log(i)
 }
+```
+
+```javascript
 [...Xiterable.xrange(4)]        // [0, 1, 2, 3]
 [...Xiterable.xrange(1,5)]      // [1, 2, 3, 4]
 [...Xiterable.xrange(1,5,2)]    // [1, 3] 
@@ -218,5 +237,12 @@ for (const i of Xiterable.xrange()) // infinite stream of 0, 1, ...
 
 Returns an iterator with all elements are the same.
 
-* `Xiterable.repeat(value)` returns an infinite stream of `value`
-* `Xiterable.repeat(value, n)` returns repeats `value` for `n` times.
+```javascript
+for (const i of Xiterable.repeat('spam')) { // infinite stream of 'spam'
+    console.log(i)
+}
+```
+
+```javascript
+[...Xiterable.repeat('spam', 4)] // ['spam', 'spam', 'spam', 'spam']
+```
