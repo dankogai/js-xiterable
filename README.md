@@ -115,9 +115,10 @@ The following methods in `Array.prototype` are supported as follows.   For any m
 |[splice]       | ❌ | mutating |
 |[unshift]      | ❌ | mutating |
 |[filter]       | ✔︎ |   |
+
 Unavalable methods either:
 
-* mutating.  that is, change the invoking object. e.g. `pop`, `push`…
+* mutates the calling object. e.g. `pop`, `push`…
 * need to iterate backwards.  e.g. `lastIndexOf()`, `reduceRight()`…
 
 [concat]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat
