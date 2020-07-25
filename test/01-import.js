@@ -1,4 +1,4 @@
-import * as _Module from '../xiterator.js';
+import * as _Module from '../xiterable.js';
 describe('import', () => {
   for (const k in _Module) {
     const tn = k === 'version' ? 'string' : 'function';

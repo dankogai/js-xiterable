@@ -1,4 +1,4 @@
-import { Xiterator, xiterator, xrange } from '../xiterator.js';
+import { Xiterable, xiterable, xrange } from '../xiterable.js';
 const $ = chai.expect;
 const should = chai.should;
 const gen = xrange(4)

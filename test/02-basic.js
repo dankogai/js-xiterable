@@ -1,4 +1,4 @@
-import {Xiterator as _} from '../xiterator.js';
+import {Xiterable as _} from '../xiterable.js';
 const $ = chai.expect;    
 
 describe('isIterable', () => {
