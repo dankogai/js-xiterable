@@ -189,19 +189,19 @@ export class Xiterable<T> {
     /**
     * `lastIndexOf` as `Array.prototype.lastIndexOf`
     */
-    lastIndexOf(valueToFind, fromIndex: anyint = 0) {
+    lastIndexOf(valueToFind, fromIndex?:anyint) {
         const ctor = this.length.constructor;
-        fromIndex = ctor(fromIndex);
+        fromIndex = arguments.length == 1 
+            ? ctor(this.length) - ctor(1) : ctor(fromIndex);
         if (this.isEndless) {
             throw new RangeError('an infinite iterable cannot go backwards');
         }
         if (fromIndex < 0) {
-            const ctor = this.length.constructor;
             fromIndex = ctor(this.length) + ctor(fromIndex);
             if (fromIndex < 0) fromIndex = 0;
         }
-        fromIndex = typeof fromIndex === 'undefined'
-            ? ctor(0) : ctor(this.length) - ctor(fromIndex) - ctor(1);
+        const offset = ctor(this.length) - ctor(1)
+        fromIndex = offset - ctor(fromIndex);
         let it = this.reversed()
         let idx = it.indexOf(valueToFind, ctor(fromIndex));
         if (idx === -1) return -1;
