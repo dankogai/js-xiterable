@@ -102,16 +102,16 @@ The following methods in `Array.prototype` are supported as follows.   For any m
 |[flat]         | ✔︎ |   |
 |[flatMap]      | ✔︎ |   |
 |[forEach]      | ✔︎ |   |
-|[includes]     | ✔︎*| * throws `RangeError` if the 2nd arg is negative |
-|[indexOf]      | ✔︎ |   |
+|[includes]     | ✔︎*| * throws `RangeError` on infinite iterables if the 2nd arg is negative |
+|[indexOf]      | ✔︎*| * throws `RangeError` on infinite iterables if the 2nd arg is negative|
 |[join]         | ✔︎ |   |
 |[keys]         | ✔︎ |   |
-|[lastIndexOf]  | ❌ | need to iterate backwards |
+|[lastIndexOf]  | ✔︎*| * throws `RangeError` on infinite iterables if the 2nd arg is negative|
 |[map]          | ✔︎ |   |
 |[pop]          | ❌ | mutating |
 |[push]         | ❌ | mutating |
-|[reduce]       | ✔︎ |   |
-|[reduceRight]  | ✔︎* | * throws `TypeError` on infinite iterables. |
+|[reduce]       | ✔︎* | * throws `RangeError` on infinite iterables |
+|[reduceRight]  | ✔︎* | * throws `RangeError` on infinite iterables |
 |[reverse]      | ❌ | mutating.  See [reversed](#reversed) |
 |[shift]        | ❌ | mutating |
 |[slice]        | ✔︎* | * throws `RangeError` if any of the arg is negative |
@@ -121,10 +121,10 @@ The following methods in `Array.prototype` are supported as follows.   For any m
 |[unshift]      | ❌ | mutating |
 |[filter]       | ✔︎ |   |
 
-Unavalable methods either:
 
-* mutates the calling object. e.g. `pop`, `push`…
-* need to iterate backwards.  e.g. `lastIndexOf()`, `reduceRight()`…
+* Mutating functions (functions that change `this`) are deliberately made unavailable. e.g. `pop`, `push`…
+
+* Functions that need toiterate backwards do not work on infinite iterables.  e.g. `lastIndexOf()`, `reduceRight()`…
 
 [concat]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/concat
 [copyWithin]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/copyWithin

@@ -92,12 +92,14 @@ export declare class Xiterable {
     findIndex(fn: callback, thisArg?: any): number;
     /**
     * `indexOf` as `Array.prototype.indexOf`
-    *
     */
     indexOf(valueToFind: any, fromIndex?: number): number;
     /**
+    * `lastIndexOf` as `Array.prototype.lastIndexOf`
+    */
+    lastIndexOf(valueToFind: any, fromIndex?: anyint): number;
+    /**
      * `includes` as `Array.prototype.includes`
-     *
      */
     includes(valueToFind: any, fromIndex?: number): boolean;
     /**

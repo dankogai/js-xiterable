@@ -173,17 +173,43 @@ export class Xiterable {
     }
     /**
     * `indexOf` as `Array.prototype.indexOf`
-    *
     */
     indexOf(valueToFind, fromIndex = 0) {
         if (fromIndex < 0) {
-            throw new RangeError("negative index unsupported");
+            if (this.isEndless) {
+                throw new RangeError('an infinite iterable cannot go backwards');
+            }
+            const ctor = this.length.constructor;
+            fromIndex = ctor(this.length) + ctor(fromIndex);
+            if (fromIndex < 0)
+                fromIndex = 0;
         }
         return this.entries().findIndex(v => fromIndex <= v[0] && Object.is(v[1], valueToFind));
     }
     /**
+    * `lastIndexOf` as `Array.prototype.lastIndexOf`
+    */
+    lastIndexOf(valueToFind, fromIndex) {
+        if (this.isEndless) {
+            throw new RangeError('an infinite iterable cannot go backwards');
+        }
+        const ctor = this.length.constructor;
+        if (fromIndex < 0) {
+            const ctor = this.length.constructor;
+            fromIndex = ctor(this.length) + ctor(fromIndex);
+            if (fromIndex < 0)
+                fromIndex = 0;
+        }
+        fromIndex = typeof fromIndex === 'undefined'
+            ? ctor(0) : ctor(this.length) - ctor(fromIndex) - ctor(1);
+        let it = this.reversed();
+        let idx = it.indexOf(valueToFind, ctor(fromIndex));
+        if (idx === -1)
+            return -1;
+        return ctor(this.length) - ctor(idx) - ctor(1);
+    }
+    /**
      * `includes` as `Array.prototype.includes`
-     *
      */
     includes(valueToFind, fromIndex = 0) {
         return this.indexOf(valueToFind, fromIndex) > -1;
@@ -195,7 +221,7 @@ export class Xiterable {
      */
     reduce(fn, initialValue) {
         if (this.isEndless) {
-            throw new TypeError('an infinite iterable cannot be reduced');
+            throw new RangeError('an infinite iterable cannot be reduced');
         }
         if (arguments.length == 1 && Number(this.length) === 0) {
             throw new TypeError('Reduce of empty iterable with no initial value');
