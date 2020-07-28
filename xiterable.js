@@ -6,6 +6,7 @@
  *
 */
 export const version = '0.0.3';
+// MARK: Utility
 /**
  * `true` if `obj` is iterable.  `false` otherwise.
  */
@@ -16,7 +17,10 @@ export function isIterable(obj) {
         return false; // other primitives
     return typeof obj[Symbol.iterator] === 'function';
 }
-function isInt(o) {
+/**
+ * `true` if `o` is an integer (Number with integral value or BigInt).
+ */
+export function isInteger(o) {
     return typeof o === 'number' ? (o | 0) === o : typeof o === 'bigint';
 }
 function min(...args) {
@@ -31,13 +35,13 @@ const nthError = (n) => {
     throw TypeError('I do not know how to random access!');
 };
 /**
- *
+ * main class
  */
 export class Xiterable {
     /**
      * @constructor
      */
-    constructor(seed, length = Number.POSITIVE_INFINITY, nth = null) {
+    constructor(seed, length = Number.POSITIVE_INFINITY, nth) {
         if (seed instanceof Xiterable) {
             return seed;
         }
@@ -52,11 +56,11 @@ export class Xiterable {
             if (typeof seed['nth'] === 'function') {
                 nth = seed['nth'].bind(seed);
             }
-            else if (isInt(seed['length'])) {
+            else if (isInteger(seed['length'])) {
                 nth = (n) => seed[Number(n < 0 ? length + n : n)];
             }
         }
-        if (isInt(seed['length'])) {
+        if (isInteger(seed['length'])) {
             length = seed['length'];
         }
         if (!nth)
@@ -68,7 +72,7 @@ export class Xiterable {
     static get version() { return version; }
     static isIterable(obj) { return isIterable(obj); }
     /**
-     *
+     * `true` if this iterable is endless
      */
     get isEndless() {
         return this.length === Number.POSITIVE_INFINITY;
@@ -274,9 +278,6 @@ export class Xiterable {
     }
     /**
      * `every` as `Array.prototype.every`
-     * @param {Function} fn the predicate function
-     * @param {Object} [thisArg] Value to use as `this` when executing `fn`
-     * @returns {Boolean}
      */
     every(fn, thisArg = null) {
         return ((it, num) => {
@@ -290,9 +291,6 @@ export class Xiterable {
     }
     /**
      * `some` as `Array.prototype.some`
-     * @param {Function} fn the predicate function
-     * @param {Object} [thisArg] Value to use as `this` when executing `fn`
-     * @returns {Boolean}
      */
     some(fn, thisArg = null) {
         return ((it, num) => {
@@ -362,7 +360,6 @@ export class Xiterable {
     }
     //// MARK: functional methods not defined above
     /**
-     *
      */
     take(n) {
         let ctor = this.length.constructor;
@@ -386,8 +383,6 @@ export class Xiterable {
         }(this.seed, ctor), newlen, nth);
     }
     /**
-     * @param {Number} n
-     * @returns {Xiterable}
      */
     drop(n) {
         let ctor = this.length.constructor;

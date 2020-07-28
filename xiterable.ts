@@ -6,6 +6,15 @@
  *
 */
 export const version = '0.0.3';
+//  MARK: types
+type anyint = number | bigint;
+declare const BigInt: typeof Number;
+type anyfunction = (...any) => any;
+type transform<T, U> = (T, anyint?, any?) => U;
+type predicate<T> = (T, anyint?, any?) => boolean;
+type accumulate<T, U> = (U, T, anyint?, any?) => U;
+type subscript = (anyint) => any;
+// MARK: Utility
 /**
  * `true` if `obj` is iterable.  `false` otherwise.
  */
@@ -14,15 +23,10 @@ export function isIterable(obj) {
     if (obj !== Object(obj)) return false; // other primitives
     return typeof obj[Symbol.iterator] === 'function';
 }
-/** 
- * BigInt workaround
- */
-type anyint = number | bigint;
 /**
- * Utility
+ * `true` if `o` is an integer (Number with integral value or BigInt).
  */
-declare const BigInt: typeof Number;
-function isInt(o) {
+export function isInteger(o) {
     return typeof o === 'number' ? (o | 0) === o : typeof o === 'bigint';
 }
 function min(...args: anyint[]) {
@@ -32,15 +36,11 @@ function min(...args: anyint[]) {
     }
     return result;
 }
-const nthError = (n) => {
+const nthError = (n: anyint) => {
     throw TypeError('I do not know how to random access!');
 }
-type anyfunction = (...any) => any;
-type transform<T, U> = (T, anyint?, any?) => U;
-type predicate<T> = (T, anyint?, any?) => boolean;
-type accumulate<T, U> = (U, T, anyint?, any?) => U;
 /**
- * 
+ * main class
  */
 export class Xiterable<T> {
     seed: Iterable<T>;
@@ -54,7 +54,7 @@ export class Xiterable<T> {
     constructor(
         seed: T,
         length: anyint = Number.POSITIVE_INFINITY,
-        nth: anyfunction = null
+        nth?: subscript
     ) {
         if (seed instanceof Xiterable) {
             return seed;
@@ -68,11 +68,11 @@ export class Xiterable<T> {
         } else if (!nth) {
             if (typeof seed['nth'] === 'function') {
                 nth = seed['nth'].bind(seed);
-            } else if (isInt(seed['length'])) {
+            } else if (isInteger(seed['length'])) {
                 nth = (n) => seed[Number(n < 0 ? length + n : n)];
             }
         }
-        if (isInt(seed['length'])) {
+        if (isInteger(seed['length'])) {
             length = seed['length'];
         }
         if (!nth) nth = nthError;
@@ -81,7 +81,7 @@ export class Xiterable<T> {
         Object.defineProperty(this, 'nth', { value: nth });
     }
     /**
-     * 
+     * `true` if this iterable is endless
      */
     get isEndless() {
         return this.length === Number.POSITIVE_INFINITY;
@@ -116,7 +116,7 @@ export class Xiterable<T> {
     */
     map<U>(fn: transform<T, U>, thisArg?) {
         const seed = this.seed;
-        const nth = (n) => fn.call(thisArg, this.nth(n), n, seed);
+        const nth = (n: anyint) => fn.call(thisArg, this.nth(n), n, seed);
         return new Xiterable(() => function* (it, num) {
             let i = num(0);
             for (const v of it) {
@@ -282,9 +282,6 @@ export class Xiterable<T> {
     }
     /**
      * `every` as `Array.prototype.every`
-     * @param {Function} fn the predicate function
-     * @param {Object} [thisArg] Value to use as `this` when executing `fn`
-     * @returns {Boolean}
      */
     every(fn: predicate<T>, thisArg = null) {
         return ((it, num) => {
@@ -297,9 +294,6 @@ export class Xiterable<T> {
     }
     /**
      * `some` as `Array.prototype.some`
-     * @param {Function} fn the predicate function
-     * @param {Object} [thisArg] Value to use as `this` when executing `fn`
-     * @returns {Boolean}
      */
     some(fn: predicate<T>, thisArg = null) {
         return ((it, num) => {
@@ -360,7 +354,6 @@ export class Xiterable<T> {
     }
     //// MARK: functional methods not defined above
     /**
-     * 
      */
     take(n: anyint) {
         let ctor = this.length.constructor;
@@ -380,8 +373,6 @@ export class Xiterable<T> {
         }(this.seed, ctor), newlen, nth);
     }
     /**
-     * @param {Number} n
-     * @returns {Xiterable}
      */
     drop(n: anyint) {
         let ctor = this.length.constructor;
@@ -440,14 +431,14 @@ export class Xiterable<T> {
         const length = min(...xargs.map(v => v.length))
         const nth = length === Number.POSITIVE_INFINITY
             ? nthError
-            : (n) => {
+            : (n: anyint) => {
                 let result = [];
                 for (const x of xargs) {
                     result.push(x.nth(n))
                 }
                 return result;
             };
-        return new Xiterable(() => function*(them) {
+        return new Xiterable(() => function* (them) {
             while (true) {
                 let elem = []
                 for (const it of them) {

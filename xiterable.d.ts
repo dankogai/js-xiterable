@@ -6,20 +6,22 @@
  *
 */
 export declare const version = "0.0.3";
-/**
- * `true` if `obj` is iterable.  `false` otherwise.
- */
-export declare function isIterable(obj: any): boolean;
-/**
- * BigInt workaround
- */
 declare type anyint = number | bigint;
 declare type anyfunction = (...any: any[]) => any;
 declare type transform<T, U> = (T: any, anyint?: any, any?: any) => U;
 declare type predicate<T> = (T: any, anyint?: any, any?: any) => boolean;
 declare type accumulate<T, U> = (U: any, T: any, anyint?: any, any?: any) => U;
+declare type subscript = (anyint: any) => any;
 /**
- *
+ * `true` if `obj` is iterable.  `false` otherwise.
+ */
+export declare function isIterable(obj: any): boolean;
+/**
+ * `true` if `o` is an integer (Number with integral value or BigInt).
+ */
+export declare function isInteger(o: any): boolean;
+/**
+ * main class
  */
 export declare class Xiterable<T> {
     seed: Iterable<T>;
@@ -30,9 +32,9 @@ export declare class Xiterable<T> {
     /**
      * @constructor
      */
-    constructor(seed: T, length?: anyint, nth?: anyfunction);
+    constructor(seed: T, length?: anyint, nth?: subscript);
     /**
-     *
+     * `true` if this iterable is endless
      */
     get isEndless(): boolean;
     /**
@@ -119,16 +121,10 @@ export declare class Xiterable<T> {
     join(separator?: string): unknown;
     /**
      * `every` as `Array.prototype.every`
-     * @param {Function} fn the predicate function
-     * @param {Object} [thisArg] Value to use as `this` when executing `fn`
-     * @returns {Boolean}
      */
     every(fn: predicate<T>, thisArg?: any): boolean;
     /**
      * `some` as `Array.prototype.some`
-     * @param {Function} fn the predicate function
-     * @param {Object} [thisArg] Value to use as `this` when executing `fn`
-     * @returns {Boolean}
      */
     some(fn: predicate<T>, thisArg?: any): boolean;
     /**
@@ -140,12 +136,9 @@ export declare class Xiterable<T> {
      */
     slice(start?: number, end?: number): Xiterable<any[]>;
     /**
-     *
      */
     take(n: anyint): Xiterable<() => Generator<T, void, unknown>>;
     /**
-     * @param {Number} n
-     * @returns {Xiterable}
      */
     drop(n: anyint): Xiterable<() => Generator<T, void, unknown>>;
     /**
