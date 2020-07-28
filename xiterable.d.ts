@@ -21,12 +21,13 @@ declare type callback = (...any: any[]) => any;
 export declare class Xiterable {
     seed: Iterable<any>;
     length: anyint;
+    nth: callback;
     static get version(): string;
     static isIterable(obj: any): boolean;
     /**
      * @constructor
      */
-    constructor(obj: any, length?: anyint);
+    constructor(seed: any, length?: anyint, nth?: callback);
     /**
      *
      */
@@ -104,7 +105,7 @@ export declare class Xiterable {
      * @param {Function} fn the reducer function
      * @param {Object} [initialValue] the initial value
      */
-    reduce(fn: callback): any;
+    reduce(fn: callback, initialValue?: any): any;
     /**
      * `flat` as `Array.prototype.flat`
      *
@@ -153,9 +154,6 @@ export declare class Xiterable {
      */
     slice(start?: number, end?: number): Xiterable;
     /**
-     * @returns {Xiterable}
-     */
-    /**
      * @param {Number} n
      * @returns {Xiterable}
      */
@@ -171,15 +169,7 @@ export declare class Xiterable {
      */
     filled(value: any): Xiterable;
     /**
-     *
-     */
-    get hasNth(): boolean;
-    /**
-     * nth
-     */
-    nth(n: anyint): any;
-    /**
-     * returns an iterator which reverses entries.
+     * reverse the iterator.  `this` must be finite and random accessible.
      */
     reversed(): Xiterable;
     /**

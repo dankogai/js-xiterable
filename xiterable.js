@@ -26,20 +26,33 @@ export class Xiterable {
     /**
      * @constructor
      */
-    constructor(obj, length = Number.POSITIVE_INFINITY) {
-        if (!isIterable(obj)) {
-            if (typeof obj !== 'function') {
-                throw TypeError(`${obj} is neither iterable or a generator`);
+    constructor(seed, length = Number.POSITIVE_INFINITY, nth = null) {
+        if (!isIterable(seed)) {
+            if (typeof seed !== 'function') {
+                throw TypeError(`${seed} is neither iterable or a generator`);
             }
             // treat obj as a generator
-            obj = Object.create(null, { [Symbol.iterator]: { value: obj } });
+            seed = Object.create(null, { [Symbol.iterator]: { value: seed } });
         }
-        else {
-            if (isInt(obj.length))
-                length = obj.length;
+        else if (!nth) {
+            if (typeof seed['nth'] === 'function') {
+                nth = seed['nth'].bind(seed);
+            }
+            else if (isInt(seed.length)) {
+                nth = (n) => seed[Number(n < 0 ? length + n : n)];
+            }
+            else {
+                nth = (n) => {
+                    throw TypeError('no idea how to random access!');
+                };
+            }
         }
-        Object.defineProperty(this, 'seed', { value: obj });
+        if (isInt(seed.length)) {
+            length = seed.length;
+        }
+        Object.defineProperty(this, 'seed', { value: seed });
         Object.defineProperty(this, 'length', { value: length });
+        Object.defineProperty(this, 'nth', { value: nth });
     }
     static get version() { return version; }
     static isIterable(obj) { return isIterable(obj); }
@@ -80,12 +93,14 @@ export class Xiterable {
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
     */
     map(fn, thisArg = null) {
+        const seed = this.seed;
+        const nth = (n) => fn.call(thisArg, this.nth(n), n, seed);
         return new Xiterable(() => function* (it, num) {
             let i = num(0);
             for (const v of it) {
                 yield fn.call(thisArg, v, i++, it);
             }
-        }(this.seed, this.length.constructor), this.length);
+        }(seed, this.length.constructor), this.length, nth);
     }
     /**
      * `forEach` as `Array.prototype.map`
@@ -179,11 +194,12 @@ export class Xiterable {
      * @param {Function} fn the reducer function
      * @param {Object} [initialValue] the initial value
      */
-    reduce(fn) {
+    reduce(fn, initialValue) {
         let it = this.seed[Symbol.iterator]();
+        let ctor = this.length.constructor;
         let [a, i] = 1 < arguments.length
-            ? [arguments[1], this.length.constructor(0)]
-            : [it.next().value, this.length.constructor(1)];
+            ? [arguments[1], ctor(0)]
+            : [it.next().value, ctor(1)];
         // for (const v of it) {
         let next;
         while ((next = it.next()).done) {
@@ -294,7 +310,14 @@ export class Xiterable {
             ? ctor(this.length) - ctor(start)
             : ctor(end) - ctor(start);
         if (newlen < 0)
-            newlen = this.length.constructor(0);
+            newlen = ctor(0);
+        let nth = (i) => {
+            if (i < 0)
+                i = newlen + i;
+            if (newlen <= i)
+                throw RangeError(`${i} is out of range`);
+            return this.nth(start + i);
+        };
         return new Xiterable(() => function* (it, num) {
             let i = num(-1);
             for (const v of it) {
@@ -305,15 +328,9 @@ export class Xiterable {
                     break;
                 yield v;
             }
-        }(this.seed, ctor), newlen);
+        }(this.seed, ctor), newlen, nth);
     }
     //// MARK: functional methods not defined above
-    /**
-     * @returns {Xiterable}
-     */
-    // reversed() {
-    //     return new Xiterable([...this].reverse());
-    // }
     /**
      * @param {Number} n
      * @returns {Xiterable}
@@ -322,7 +339,14 @@ export class Xiterable {
         let ctor = this.length.constructor;
         let newlen = ctor(n);
         if (ctor(this.length) < newlen)
-            newlen = this.length;
+            newlen = ctor(this.length);
+        let nth = (i) => {
+            if (i < 0)
+                i = newlen + i;
+            if (newlen <= i)
+                throw RangeError(`${i} is out of range`);
+            return this.nth(i);
+        };
         return new Xiterable(() => function* (it, num) {
             let i = num(0), nn = num(n);
             for (const v of it) {
@@ -330,7 +354,7 @@ export class Xiterable {
                     break;
                 yield v;
             }
-        }(this.seed, ctor), newlen);
+        }(this.seed, ctor), newlen, nth);
     }
     /**
      * @param {Number} n
@@ -341,6 +365,13 @@ export class Xiterable {
         let newlen = ctor(this.length) - ctor(n);
         if (newlen < 0)
             newlen = ctor(0);
+        let nth = (i) => {
+            if (i < 0)
+                i = newlen + i;
+            if (newlen <= i)
+                throw RangeError(`${i} is out of range`);
+            return this.nth(n + i);
+        };
         return new Xiterable(() => function* (it, num) {
             let i = num(0), nn = num(n);
             for (const v of it) {
@@ -348,7 +379,7 @@ export class Xiterable {
                     continue;
                 yield v;
             }
-        }(this.seed, ctor), newlen);
+        }(this.seed, ctor), newlen, nth);
     }
     /**
      * returns an iterator with all elements replaced with `value`
@@ -358,38 +389,23 @@ export class Xiterable {
         return this.map(() => value);
     }
     /**
-     *
-     */
-    get hasNth() {
-        if (typeof this.seed['nth'] === 'function')
-            return true;
-        return typeof this.seed['length'] === 'number';
-    }
-    /**
-     * nth
-     */
-    nth(n) {
-        let nth = this.seed['nth'];
-        if (typeof nth === 'function')
-            return nth.bind(this.seed)(n);
-        if (typeof this.seed['length'] === 'number') {
-            return this.seed[Number(n)];
-        }
-        throw RangeError('no idea how to get the nth element.');
-    }
-    /**
-     * returns an iterator which reverses entries.
+     * reverse the iterator.  `this` must be finite and random accessible.
      */
     reversed() {
-        if (this.isEndless)
-            throw new RangeError('cannot reverse an infinite list');
-        if (!this.hasNth)
-            throw new RangeError('cannot random-access!');
+        if (this.isEndless) {
+            throw new RangeError('cannot reverse an infinite iterator');
+        }
+        let length = this.length;
+        const ctor = length.constructor;
+        const nth = (n) => {
+            const i = ctor(n) + ctor(n < 0 ? length : 0);
+            return this.nth(ctor(length) - i - ctor(1));
+        };
         return new Xiterable(() => function* (it, len) {
             let i = len;
             while (0 < i)
                 yield it.nth(--i);
-        }(this, this.length), this.length);
+        }(this, this.length), this.length, nth);
     }
     /**
      * @returns {Xiterable}
@@ -442,15 +458,22 @@ export class Xiterable {
             [b, e, d] = [0, b, 1];
         if (typeof d === 'undefined')
             [b, e, d] = [b, e, 1];
-        let l = typeof b === 'bigint'
+        let len = typeof b === 'bigint'
             ? (e - b) / d : Math.floor((e - b) / d);
+        let nth = (n) => {
+            if (n < 0)
+                n = len + n;
+            if (len <= n)
+                throw RangeError(`${n} is out of range`);
+            return b + d * n;
+        };
         return new Xiterable(() => function* (b, e, d) {
             let i = b;
             while (i < e) {
                 yield i;
                 i += d;
             }
-        }(b, e, d), l);
+        }(b, e, d), len, nth);
     }
     /**
      */
@@ -459,7 +482,7 @@ export class Xiterable {
             let i = 0;
             while (i++ < times)
                 yield value;
-        });
+        }, times, (n) => value);
     }
 }
 ;
