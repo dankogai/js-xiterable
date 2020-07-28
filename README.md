@@ -168,7 +168,7 @@ Returns `[...this]`.
 
 #### `.drop`
 
-.drop(n)` returns the iterator that drops first `n` elements of `this`.
+`.drop(n)` returns the iterator that drops first `n` elements of `this`.
 
 #### `.zip`
 
