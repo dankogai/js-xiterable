@@ -34,7 +34,8 @@ describe('.prototype.filter', () => {
     }
 });
 describe('.prototype.{indexOf,lastIndexOf}', () => {
-    let iter = xi('dankogai');
+    let str = 'dankogai'
+    let iter = xi(str);
     it(`iter.indexOf('a') === [...iter].indexOf('a')`, () =>
         $(iter.indexOf('a')).to.equal([...iter].indexOf('a'))
     );
@@ -47,7 +48,7 @@ describe('.prototype.{indexOf,lastIndexOf}', () => {
     it(`iter.lastIndexOf('A') === [...iter].lastIndexOf('A')`, () =>
         $(iter.lastIndexOf('A')).to.equal([...iter].lastIndexOf('A'))
     );
-    for (const i of xrange(-8, 8)) {
+    for (const i of xrange(-str.length, str.length)) {
         it(`iter.indexOf('a', ${i}) === [...iter].indexOf('a', ${i})`, () =>
             $(iter.indexOf('a', i)).to.equal([...iter].indexOf('a', i))
         );
@@ -75,12 +76,12 @@ describe('.prototype.reduceRight', () => {
     );
 });
 describe('.prototype.slice', () => {
-    // const ary = [...xrange(-4,4)];
-    for (const s of ar4) {
+    const ary = [...xrange(-4,4)];
+    for (const s of ary) {
         it(`[...iter.slice(${s})] === [...iter].slice(${s})`, () =>
             $([...xr4.slice(s)]).to.deep.equal(ar4.slice(s))
         );
-        for (const e of ar4) {
+        for (const e of ary) {
             it(`[...iter.slice(${s},${e})] === [...iter].slice(${s},${e})`, () =>
                 $([...xr4.slice(s, e)]).to.deep.equal(ar4.slice(s, e))
             );

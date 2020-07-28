@@ -311,13 +311,19 @@ export class Xiterable {
      * `slice` as `Array.prototype.slice`
      */
     slice(start = 0, end = Number.POSITIVE_INFINITY) {
+        let ctor = this.length.constructor;
         if (start < 0 || end < 0) {
-            throw new RangeError("negative index unsupported");
+            if (this.isEndless) {
+                throw new RangeError('negative indexes cannot be used');
+            }
+            if (start < 0)
+                start = ctor(this.length) + ctor(start);
+            if (end < 0)
+                end = ctor(this.length) + ctor(end);
         }
         if (end <= start)
             return new Xiterable([]);
         // return this.drop(start).take(end - start);
-        let ctor = this.length.constructor;
         let newlen = end === Number.POSITIVE_INFINITY
             ? ctor(this.length) - ctor(start)
             : ctor(end) - ctor(start);

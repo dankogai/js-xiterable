@@ -189,9 +189,9 @@ export class Xiterable<T> {
     /**
     * `lastIndexOf` as `Array.prototype.lastIndexOf`
     */
-    lastIndexOf(valueToFind, fromIndex?:anyint) {
+    lastIndexOf(valueToFind, fromIndex?: anyint) {
         const ctor = this.length.constructor;
-        fromIndex = arguments.length == 1 
+        fromIndex = arguments.length == 1
             ? ctor(this.length) - ctor(1) : ctor(fromIndex);
         if (this.isEndless) {
             throw new RangeError('an infinite iterable cannot go backwards');
@@ -315,12 +315,16 @@ export class Xiterable<T> {
      * `slice` as `Array.prototype.slice`
      */
     slice(start = 0, end = Number.POSITIVE_INFINITY) {
+        let ctor = this.length.constructor;
         if (start < 0 || end < 0) {
-            throw new RangeError("negative index unsupported");
+            if (this.isEndless) {
+                throw new RangeError('negative indexes cannot be used')
+            }
+            if (start < 0) start = ctor(this.length) + ctor(start);
+            if (end < 0) end = ctor(this.length) + ctor(end);
         }
         if (end <= start) return new Xiterable([]);
         // return this.drop(start).take(end - start);
-        let ctor = this.length.constructor;
         let newlen = end === Number.POSITIVE_INFINITY
             ? ctor(this.length) - ctor(start)
             : ctor(end) - ctor(start);
@@ -456,7 +460,7 @@ export class Xiterable<T> {
             ? (BigInt(e) - BigInt(b)) / BigInt(d)
             : Math.floor((Number(e) - Number(b)) / Number(d));
         let ctor = b.constructor;
-        let nth = (n:anyint) => {
+        let nth = (n: anyint) => {
             if (n < 0) n = ctor(len) + ctor(n);
             if (len <= n) throw RangeError(`${n} is out of range`);
             return ctor(b) + ctor(d) * ctor(n);
