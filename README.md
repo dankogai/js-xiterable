@@ -112,7 +112,7 @@ The following methods in `Array.prototype` are supported as follows.   For any m
 |[push]         | ❌ | mutating |
 |[reduce]       | ✔︎ |   |
 |[reduceRight]  | ❌ | need to iterate backwards |
-|[reverse]      | ❌ | mutating |
+|[reverse]      | ❌ | mutating.  See [reversed](#reversed) |
 |[shift]        | ❌ | mutating |
 |[slice]        | ✔︎*| * throws `RangeError` if any of the arg is negative |
 |[some]         | ✔︎ |   |
@@ -156,7 +156,7 @@ Unavalable methods either:
 [unshift]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift
 [values]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/values
 
-## other instance methods
+### other instance methods
 
 #### `.toArray()`
 
@@ -164,11 +164,11 @@ Returns `[...this]`.
 
 #### `.take`
 
-`.take(n)` returns the iterator that takes first `n` elements of the original iterator.
+`.take(n)` returns an iterator that takes first `n` elements of `this`.
 
 #### `.drop`
 
-.drop(n)` returns the iterator that drops first `n` elements of the original iterator.
+.drop(n)` returns the iterator that drops first `n` elements of `this`.
 
 #### `.zip`
 
@@ -178,7 +178,15 @@ Returns `[...this]`.
 [...Xiterable.xrange().zip('abcd')]   // [[0,"a"],[1,"b"],[2,"c"],[3,"d"]]
 ```
 
-## static methods
+#### `.nth`
+
+`.nth(n)` returns the nth element of `this` if the original itertor has `.nth` or Array-like (can access nth element via `[n]`).
+
+#### `.reversed`
+
+returns an iterator that returns elements in reverse order.  `this` must be finite and random-accesible via `.nth()` or exception is thrown.
+
+### static methods
 
 They are also exported so you can:
 

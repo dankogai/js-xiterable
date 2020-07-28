@@ -51,7 +51,7 @@ export class Xiterable {
      * 
      */
     get isEndless() {
-        return this.length < 0;
+        return this.length === Number.POSITIVE_INFINITY;
     }
     /**
      * does `new`
@@ -184,8 +184,8 @@ export class Xiterable {
      */
     reduce(fn: callback) {
         let it = this.seed[Symbol.iterator]();
-        let [a, i] = 1 < arguments.length 
-            ? [arguments[1], this.length.constructor(0)] 
+        let [a, i] = 1 < arguments.length
+            ? [arguments[1], this.length.constructor(0)]
             : [it.next().value, this.length.constructor(1)];
         // for (const v of it) {
         let next;
@@ -315,26 +315,32 @@ export class Xiterable {
      * @returns {Xiterable}
      */
     take(n) {
-        return new Xiterable(() => function* (it) {
-            let i = 0;
+        let ctor = this.length.constructor;
+        let newlen = ctor(n)
+        if (ctor(this.length) < newlen) newlen = this.length;
+        return new Xiterable(() => function* (it, num) {
+            let i = num(0), nn = num(n);
             for (const v of it) {
-                if (n <= i++) break;
+                if (nn <= i++) break;
                 yield v;
             }
-        }(this.seed));
+        }(this.seed, ctor), newlen);
     }
     /**
      * @param {Number} n
      * @returns {Xiterable}
      */
     drop(n) {
-        return new Xiterable(() => function* (it) {
-            let i = 0;
+        let ctor = this.length.constructor;
+        let newlen = ctor(this.length) - ctor(n);
+        if (newlen < 0) newlen = ctor(0);
+        return new Xiterable(() => function* (it, num) {
+            let i = num(0), nn = num(n);
             for (const v of it) {
-                if (i++ < n) continue;
+                if (i++ < nn) continue;
                 yield v;
             }
-        }(this.seed));
+        }(this.seed, ctor), newlen);
     }
     /**
      * returns an iterator with all elements replaced with `value`
@@ -342,6 +348,37 @@ export class Xiterable {
      */
     filled(value) {
         return this.map(() => value)
+    }
+    /**
+     * 
+     */
+    get hasNth() {
+        if (typeof this.seed['nth'] === 'function') return true;
+        return typeof this.seed['length'] === 'number';
+    }
+    /**
+     * nth
+     */
+    nth(n: anyint) {
+        let nth = this.seed['nth'];
+        if (typeof nth === 'function') return nth.bind(this.seed)(n);
+        if (typeof this.seed['length'] === 'number') {
+            return this.seed[Number(n)];
+        }
+        throw RangeError('no idea how to get the nth element.');
+    }
+    /**
+     * returns an iterator which reverses entries.
+     */
+    reversed() {
+        if (this.isEndless)
+            throw new RangeError('cannot reverse an infinite list');
+        if (!this.hasNth)
+            throw new RangeError('cannot random-access!');
+        return new Xiterable(() => function* (it, len) {
+            let i = len;
+            while (0 < i) yield it.nth(--i);
+        }(this, this.length), this.length);
     }
     /**
      * @returns {Xiterable}

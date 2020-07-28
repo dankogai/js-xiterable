@@ -171,6 +171,18 @@ export declare class Xiterable {
      */
     filled(value: any): Xiterable;
     /**
+     *
+     */
+    get hasNth(): boolean;
+    /**
+     * nth
+     */
+    nth(n: anyint): any;
+    /**
+     * returns an iterator which reverses entries.
+     */
+    reversed(): Xiterable;
+    /**
      * @returns {Xiterable}
      */
     zip(...args: any[]): Xiterable;
