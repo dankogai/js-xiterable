@@ -1,5 +1,5 @@
 /**
- * xiterable.js
+ * xiterable.ts
  *
  * @version: 0.0.3
  * @author: dankogai
@@ -11,17 +11,26 @@ export declare const version = "0.0.3";
  */
 export declare function isIterable(obj: any): boolean;
 /**
+ * BigInt workaround
+ */
+declare type anyint = number | bigint;
+declare type callback = (...any: any[]) => any;
+/**
  *
  */
 export declare class Xiterable {
     seed: Iterable<any>;
-    length: number | bigint | undefined;
+    length: anyint;
     static get version(): string;
     static isIterable(obj: any): boolean;
     /**
      * @constructor
      */
-    constructor(obj: any, length?: number);
+    constructor(obj: any, length?: anyint);
+    /**
+     *
+     */
+    get isEndless(): boolean;
     /**
      * does `new`
      * @param {*} args
@@ -43,13 +52,13 @@ export declare class Xiterable {
      * @param {Function} fn the mapping function
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
     */
-    map(fn: any, thisArg?: any): Xiterable;
+    map(fn: callback, thisArg?: any): Xiterable;
     /**
      * `forEach` as `Array.prototype.map`
      * @param {Function} fn the callback function
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
     */
-    forEach(fn: any, thisArg?: any): void;
+    forEach(fn: callback, thisArg?: any): void;
     /**
     * `entries` as `Array.prototype.entries`
     */
@@ -67,19 +76,19 @@ export declare class Xiterable {
      * @param {Function} fn the predicate function
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
      */
-    filter(fn: any, thisArg?: any): Xiterable;
+    filter(fn: callback, thisArg?: any): Xiterable;
     /**
      * `find` as `Array.prototype.find`
      * @param {Function} fn the predicate function
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
      */
-    find(fn: any, thisArg?: any): any;
+    find(fn: callback, thisArg?: any): any;
     /**
      * `findIndex` as `Array.prototype.find`
      * @param {Function} fn the predicate function
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
      */
-    findIndex(fn: any, thisArg?: any): number;
+    findIndex(fn: callback, thisArg?: any): number;
     /**
     * `indexOf` as `Array.prototype.indexOf`
     *
@@ -95,7 +104,7 @@ export declare class Xiterable {
      * @param {Function} fn the reducer function
      * @param {Object} [initialValue] the initial value
      */
-    reduce(fn: any): any;
+    reduce(fn: callback): any;
     /**
      * `flat` as `Array.prototype.flat`
      *
@@ -109,7 +118,7 @@ export declare class Xiterable {
      * @param {Function} fn the mapping function
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
      */
-    flatMap(fn: any, thisArg?: any): Xiterable;
+    flatMap(fn: callback, thisArg?: any): Xiterable;
     /**
     * `join` as `Array.prototype.join`
     * @param {String} separator
@@ -122,14 +131,14 @@ export declare class Xiterable {
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
      * @returns {Boolean}
      */
-    every(fn: any, thisArg?: any): boolean;
+    every(fn: callback, thisArg?: any): boolean;
     /**
      * `some` as `Array.prototype.some`
      * @param {Function} fn the predicate function
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
      * @returns {Boolean}
      */
-    some(fn: any, thisArg?: any): boolean;
+    some(fn: callback, thisArg?: any): boolean;
     /**
      * `concat` as `Array.prototype.concat`
      */
@@ -191,3 +200,4 @@ export declare const zip: typeof Xiterable.zip;
 export declare const zipWith: typeof Xiterable.zipWith;
 export declare const xrange: typeof Xiterable.xrange;
 export declare const repeat: typeof Xiterable.repeat;
+export {};

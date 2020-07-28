@@ -1,5 +1,5 @@
 /**
- * xiterable.js
+ * xiterable.ts
  *
  * @version: 0.0.3
  * @author: dankogai
@@ -16,6 +16,9 @@ export function isIterable(obj) {
         return false; // other primitives
     return typeof obj[Symbol.iterator] === 'function';
 }
+function isInt(o) {
+    return typeof o === 'number' ? (o | 0) === o : typeof o === 'bigint';
+}
 /**
  *
  */
@@ -30,15 +33,22 @@ export class Xiterable {
             }
             // treat obj as a generator
             obj = Object.create(null, { [Symbol.iterator]: { value: obj } });
-            this.length = length;
         }
         else {
-            this.length = obj.length;
+            if (isInt(obj.length))
+                length = obj.length;
         }
         Object.defineProperty(this, 'seed', { value: obj });
+        Object.defineProperty(this, 'length', { value: length });
     }
     static get version() { return version; }
     static isIterable(obj) { return isIterable(obj); }
+    /**
+     *
+     */
+    get isEndless() {
+        return this.length < 0;
+    }
     /**
      * does `new`
      * @param {*} args
@@ -70,13 +80,12 @@ export class Xiterable {
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
     */
     map(fn, thisArg = null) {
-        let seed = this.seed;
-        return new Xiterable(function* () {
-            let i = 0;
-            for (const v of seed) {
-                yield fn.call(thisArg, v, i++, seed);
+        return new Xiterable(() => function* (it, num) {
+            let i = num(0);
+            for (const v of it) {
+                yield fn.call(thisArg, v, i++, it);
             }
-        });
+        }(this.seed, this.length.constructor), this.length);
     }
     /**
      * `forEach` as `Array.prototype.map`
@@ -114,14 +123,14 @@ export class Xiterable {
      */
     filter(fn, thisArg = null) {
         let seed = this.seed;
-        return new Xiterable(function* () {
-            let i = 0;
+        return new Xiterable(() => function* (it, num) {
+            let i = num(0);
             for (const v of seed) {
                 if (!fn.call(thisArg, v, i++, seed))
                     continue;
                 yield v;
             }
-        });
+        }(this.seed, this.length.constructor));
     }
     /**
      * `find` as `Array.prototype.find`
@@ -129,7 +138,7 @@ export class Xiterable {
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
      */
     find(fn, thisArg = null) {
-        let i = 0;
+        let i = this.length.constructor(0);
         for (const v of this.seed) {
             if (fn.call(thisArg, v, i++, this.seed))
                 return v;
@@ -141,10 +150,10 @@ export class Xiterable {
      * @param {Object} [thisArg] Value to use as `this` when executing `fn`
      */
     findIndex(fn, thisArg = null) {
-        let i = 0;
+        let i = this.length.constructor(0);
         for (const v of this.seed) {
             if (fn.call(thisArg, v, i++, this.seed))
-                return i - 1;
+                return Number(i) - 1;
         }
         return -1;
     }
@@ -172,8 +181,9 @@ export class Xiterable {
      */
     reduce(fn) {
         let it = this.seed[Symbol.iterator]();
-        let [a, i] = 1 < arguments.length ?
-            [arguments[1], 0] : [it.next().value, 1];
+        let [a, i] = 1 < arguments.length
+            ? [arguments[1], this.length.constructor(0)]
+            : [it.next().value, this.length.constructor(1)];
         // for (const v of it) {
         let next;
         while ((next = it.next()).done) {
@@ -224,14 +234,14 @@ export class Xiterable {
      * @returns {Boolean}
      */
     every(fn, thisArg = null) {
-        return ((it) => {
-            let i = 0;
+        return ((it, num) => {
+            let i = num(0);
             for (const v of it) {
                 if (!fn.call(thisArg, v, i++, it))
                     return false;
             }
             return true;
-        })(this.seed);
+        })(this.seed, this.length.constructor);
     }
     /**
      * `some` as `Array.prototype.some`
@@ -240,14 +250,14 @@ export class Xiterable {
      * @returns {Boolean}
      */
     some(fn, thisArg = null) {
-        return ((it) => {
-            let i = 0;
+        return ((it, num) => {
+            let i = num(0);
             for (const v of it) {
                 if (fn.call(thisArg, v, i++, it))
                     return true;
             }
             return false;
-        })(this.seed);
+        })(this.seed, this.length.constructor);
     }
     /**
      * `concat` as `Array.prototype.concat`
@@ -279,10 +289,15 @@ export class Xiterable {
         if (end <= start)
             return new Xiterable([]);
         // return this.drop(start).take(end - start);
-        let seed = this.seed;
-        return new Xiterable(function* () {
-            let i = -1;
-            for (const v of seed) {
+        let ctor = this.length.constructor;
+        let newlen = end === Number.POSITIVE_INFINITY
+            ? ctor(this.length) - ctor(start)
+            : ctor(end) - ctor(start);
+        if (newlen < 0)
+            newlen = this.length.constructor(0);
+        return new Xiterable(() => function* (it, num) {
+            let i = num(-1);
+            for (const v of it) {
                 ++i;
                 if (i < start)
                     continue;
@@ -290,7 +305,7 @@ export class Xiterable {
                     break;
                 yield v;
             }
-        });
+        }(this.seed, ctor), newlen);
     }
     //// MARK: functional methods not defined above
     /**
@@ -385,13 +400,15 @@ export class Xiterable {
             [b, e, d] = [0, b, 1];
         if (typeof d === 'undefined')
             [b, e, d] = [b, e, 1];
+        let l = typeof b === 'bigint'
+            ? (e - b) / d : Math.floor((e - b) / d);
         return new Xiterable(() => function* (b, e, d) {
             let i = b;
             while (i < e) {
                 yield i;
                 i += d;
             }
-        }(b, e, d));
+        }(b, e, d), l);
     }
     /**
      */

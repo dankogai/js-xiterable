@@ -11,7 +11,7 @@
     "chai": "^4.2.0"
   },
   "scripts": {
-    "test": "mocha --require esm"
+    "test": "make test"
   },
   "repository": {
     "type": "git",
