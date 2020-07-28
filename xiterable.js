@@ -19,6 +19,17 @@ export function isIterable(obj) {
 function isInt(o) {
     return typeof o === 'number' ? (o | 0) === o : typeof o === 'bigint';
 }
+function min(...args) {
+    let result = Number.POSITIVE_INFINITY;
+    for (const v of args) {
+        if (v < result)
+            result = v;
+    }
+    return result;
+}
+const nthError = (n) => {
+    throw TypeError('I do not know how to random access!');
+};
 /**
  *
  */
@@ -27,6 +38,9 @@ export class Xiterable {
      * @constructor
      */
     constructor(seed, length = Number.POSITIVE_INFINITY, nth = null) {
+        if (seed instanceof Xiterable) {
+            return seed;
+        }
         if (!isIterable(seed)) {
             if (typeof seed !== 'function') {
                 throw TypeError(`${seed} is neither iterable or a generator`);
@@ -46,9 +60,7 @@ export class Xiterable {
             length = seed['length'];
         }
         if (!nth)
-            nth = (n) => {
-                throw TypeError('I do not know how to random access!');
-            };
+            nth = nthError;
         Object.defineProperty(this, 'seed', { value: seed });
         Object.defineProperty(this, 'length', { value: length });
         Object.defineProperty(this, 'nth', { value: nth });
@@ -409,7 +421,7 @@ export class Xiterable {
      * reverse the iterable.  `this` must be finite and random accessible.
      */
     reversed() {
-        if (this.isEndless) {
+        if (this.isEndless || this.nth === nthError) {
             throw new RangeError('cannot reverse an infinite iterable');
         }
         let length = this.length;
@@ -428,29 +440,36 @@ export class Xiterable {
      * @returns {Xiterable}
      */
     zip(...args) {
-        return new Xiterable(() => function* (head, rest) {
-            while (true) {
-                let next = head.next();
-                if (next.done)
-                    return;
-                let elem = next.value;
-                for (const it of rest) {
-                    const vd = it.next();
-                    if (vd.done)
-                        return;
-                    elem.push(vd.value);
-                }
-                yield elem;
-            }
-        }(this.map(v => [v])[Symbol.iterator](), args.map(v => v[Symbol.iterator]())));
+        return Xiterable.zip(...[this].concat(args));
     }
     //// MARK: static methods
     /**
      * @returns {Xiterable}
      */
-    static zip(arg0, ...args) {
-        let it = new Xiterable(arg0);
-        return it.zip.apply(it, args);
+    static zip(...args) {
+        const xargs = args.map(v => new Xiterable(v));
+        const length = min(...xargs.map(v => v.length));
+        const nth = length === Number.POSITIVE_INFINITY
+            ? nthError
+            : (n) => {
+                let result = [];
+                for (const x of xargs) {
+                    result.push(x.nth(n));
+                }
+                return result;
+            };
+        return new Xiterable(() => function* (them) {
+            while (true) {
+                let elem = [];
+                for (const it of them) {
+                    const nx = it.next();
+                    if (nx.done)
+                        return;
+                    elem.push(nx.value);
+                }
+                yield elem;
+            }
+        }(xargs.map(v => v[Symbol.iterator]())), length, nth);
     }
     /**
      * @returns {Xiterable}

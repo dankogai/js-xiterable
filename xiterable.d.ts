@@ -138,7 +138,7 @@ export declare class Xiterable<T> {
     /**
      * `slice` as `Array.prototype.slice`
      */
-    slice(start?: number, end?: number): any;
+    slice(start?: number, end?: number): Xiterable<any[]>;
     /**
      *
      */
@@ -160,11 +160,11 @@ export declare class Xiterable<T> {
     /**
      * @returns {Xiterable}
      */
-    zip(...args: any[]): Xiterable<() => Generator<any, void, unknown>>;
+    zip(...args: any[]): Xiterable<() => Generator<any[], void, unknown>>;
     /**
      * @returns {Xiterable}
      */
-    static zip(arg0: any, ...args: any[]): any;
+    static zip(...args: Iterable<any>[]): Xiterable<() => Generator<any[], void, unknown>>;
     /**
      * @returns {Xiterable}
      */
