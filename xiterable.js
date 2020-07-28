@@ -41,15 +41,14 @@ export class Xiterable {
             else if (isInt(seed.length)) {
                 nth = (n) => seed[Number(n < 0 ? length + n : n)];
             }
-            else {
-                nth = (n) => {
-                    throw TypeError('no idea how to random access!');
-                };
-            }
         }
         if (isInt(seed.length)) {
             length = seed.length;
         }
+        if (!nth)
+            nth = (n) => {
+                throw TypeError('I do not know how to random access!');
+            };
         Object.defineProperty(this, 'seed', { value: seed });
         Object.defineProperty(this, 'length', { value: length });
         Object.defineProperty(this, 'nth', { value: nth });
@@ -195,17 +194,25 @@ export class Xiterable {
      * @param {Object} [initialValue] the initial value
      */
     reduce(fn, initialValue) {
-        let it = this.seed[Symbol.iterator]();
-        let ctor = this.length.constructor;
-        let [a, i] = 1 < arguments.length
-            ? [arguments[1], ctor(0)]
-            : [it.next().value, ctor(1)];
-        // for (const v of it) {
-        let next;
-        while ((next = it.next()).done) {
-            a = fn(a, next.value, i++, this.seed);
+        if (this.isEndless) {
+            throw new TypeError('an infinite iterable cannot be reduced');
+        }
+        if (arguments.length == 1 && Number(this.length) === 0) {
+            throw new TypeError('Reduce of empty iterable with no initial value');
+        }
+        let a = initialValue, i = 0, it = this.seed;
+        for (const v of it) {
+            a = arguments.length == 1 && i == 0 ? v : fn(a, v, i, it);
+            i++;
         }
         return a;
+    }
+    /**
+     *  `reduceRight` as `Array.prototype.reduceRight`
+     */
+    reduceRight(fn, initialValue) {
+        let it = this.reversed();
+        return it.reduce.apply(it, arguments);
     }
     /**
      * `flat` as `Array.prototype.flat`
@@ -382,18 +389,18 @@ export class Xiterable {
         }(this.seed, ctor), newlen, nth);
     }
     /**
-     * returns an iterator with all elements replaced with `value`
+     * returns an iterable with all elements replaced with `value`
      * @param {*} value the value to replace each element
      */
     filled(value) {
         return this.map(() => value);
     }
     /**
-     * reverse the iterator.  `this` must be finite and random accessible.
+     * reverse the iterable.  `this` must be finite and random accessible.
      */
     reversed() {
         if (this.isEndless) {
-            throw new RangeError('cannot reverse an infinite iterator');
+            throw new RangeError('cannot reverse an infinite iterable');
         }
         let length = this.length;
         const ctor = length.constructor;

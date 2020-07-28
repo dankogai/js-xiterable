@@ -111,10 +111,10 @@ The following methods in `Array.prototype` are supported as follows.   For any m
 |[pop]          | ❌ | mutating |
 |[push]         | ❌ | mutating |
 |[reduce]       | ✔︎ |   |
-|[reduceRight]  | ❌ | need to iterate backwards |
+|[reduceRight]  | ✔︎* | * throws `TypeError` on infinite iterables. |
 |[reverse]      | ❌ | mutating.  See [reversed](#reversed) |
 |[shift]        | ❌ | mutating |
-|[slice]        | ✔︎*| * throws `RangeError` if any of the arg is negative |
+|[slice]        | ✔︎* | * throws `RangeError` if any of the arg is negative |
 |[some]         | ✔︎ |   |
 |[sort]         | ❌ | mutating |
 |[splice]       | ❌ | mutating |

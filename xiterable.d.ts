@@ -107,6 +107,10 @@ export declare class Xiterable {
      */
     reduce(fn: callback, initialValue?: any): any;
     /**
+     *  `reduceRight` as `Array.prototype.reduceRight`
+     */
+    reduceRight(fn: callback, initialValue?: any): any;
+    /**
      * `flat` as `Array.prototype.flat`
      *
      * @param {Number} depth specifies how deeply to flatten. defaults to `1`
@@ -164,12 +168,12 @@ export declare class Xiterable {
      */
     drop(n: any): Xiterable;
     /**
-     * returns an iterator with all elements replaced with `value`
+     * returns an iterable with all elements replaced with `value`
      * @param {*} value the value to replace each element
      */
     filled(value: any): Xiterable;
     /**
-     * reverse the iterator.  `this` must be finite and random accessible.
+     * reverse the iterable.  `this` must be finite and random accessible.
      */
     reversed(): Xiterable;
     /**
