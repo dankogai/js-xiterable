@@ -15,6 +15,17 @@ describe('.prototype.map', () => {
         );
     }
 });
+describe('.prototype.{entries,values,keys}', () => {
+    it(`[...iter.entries()] === [...[...iter].entries()])`, () =>
+        $([...xr4.entries()]).to.deep.equal([...[...xr4].entries()])
+    );
+    it(`[...iter.values()] === [...[...iter].values()])`, () =>
+        $([...xr4.values()]).to.deep.equal([...[...xr4].values()])
+    );
+    it(`[...iter.keys()] === [...[...iter].keys()])`, () =>
+        $([...xr4.keys()]).to.deep.equal([...[...xr4].keys()])
+    );
+});
 describe('.prototype.filter', () => {
     for (const f of [v => v % 2, (v, i) => v === i]) {
         it(`[...iter.filter(${f})] === [...filter].fiter(${f})`, () =>
