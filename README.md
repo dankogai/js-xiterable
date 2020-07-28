@@ -114,7 +114,7 @@ The following methods in `Array.prototype` are supported as follows.   For any m
 |[reduceRight]  | ✔︎* | * throws `RangeError` on infinite iterables |
 |[reverse]      | ❌ | mutating.  See [reversed](#reversed) |
 |[shift]        | ❌ | mutating |
-|[slice]        | ✔︎* | * throws `RangeError` if any of the arg is negative |
+|[slice]        | ✔︎* | * throws `RangeError` on infinite iterables if any of the args is negative |
 |[some]         | ✔︎ |   |
 |[sort]         | ❌ | mutating |
 |[splice]       | ❌ | mutating |
@@ -206,7 +206,7 @@ Examples below assumes
 Zips iterators in the argument.
 
 ```javascript
-[...Xiterable.zip([0,1,2,3], 'abcd')]   // [[0,"a"],[1,"b"],[2,"c"],[3,"d"]]
+[...Xiterable.zip('0123', 'abcd')]   // [[0,"a"],[1,"b"],[2,"c"],[3,"d"]]
 ```
 
 #### `Xiterable.zipWith`
