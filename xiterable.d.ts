@@ -56,7 +56,7 @@ export declare class Xiterable<T> {
     /**
      * `map` as `Array.prototype.map`
     */
-    map<U>(fn: transform<T, U>, thisArg?: any): Xiterable<unknown>;
+    map<U>(fn: transform<T, U>, thisArg?: any): Xiterable<U>;
     /**
      * `forEach` as `Array.prototype.map`
     */
@@ -64,19 +64,19 @@ export declare class Xiterable<T> {
     /**
     * `entries` as `Array.prototype.entries`
     */
-    entries(): Xiterable<unknown>;
+    entries(): Xiterable<any[]>;
     /**
     * `keys` as `Array.prototype.keys`
     */
-    keys(): Xiterable<unknown>;
+    keys(): Xiterable<any>;
     /**
     * `values` as `Array.prototype.values`
     */
-    values(): Xiterable<unknown>;
+    values(): Xiterable<any>;
     /**
      * `filter` as `Array.prototype.filter`
      */
-    filter(fn: predicate<T>, thisArg?: any): Xiterable<unknown>;
+    filter(fn: predicate<T>, thisArg?: any): Xiterable<T>;
     /**
      * `find` as `Array.prototype.find`
      */
@@ -84,15 +84,15 @@ export declare class Xiterable<T> {
     /**
      * `findIndex` as `Array.prototype.find`
      */
-    findIndex(fn: predicate<T>, thisArg?: any): number;
+    findIndex(fn: predicate<T>, thisArg?: any): anyint;
     /**
     * `indexOf` as `Array.prototype.indexOf`
     */
-    indexOf(valueToFind: any, fromIndex?: anyint): number;
+    indexOf(valueToFind: any, fromIndex?: anyint): anyint;
     /**
     * `lastIndexOf` as `Array.prototype.lastIndexOf`
     */
-    lastIndexOf(valueToFind: any, fromIndex?: anyint): number;
+    lastIndexOf(valueToFind: any, fromIndex?: anyint): anyint;
     /**
      * `includes` as `Array.prototype.includes`
      */
@@ -104,7 +104,7 @@ export declare class Xiterable<T> {
     /**
      *  `reduceRight` as `Array.prototype.reduceRight`
      */
-    reduceRight<U>(fn: accumulate<T, any>, initialValue?: U): any;
+    reduceRight<U>(fn: accumulate<T, any>, initialValue?: U): U;
     /**
      * `flat` as `Array.prototype.flat`
      */
@@ -118,7 +118,7 @@ export declare class Xiterable<T> {
     * @param {String} separator
     * @returns {String}
     */
-    join(separator?: string): unknown;
+    join(separator?: string): string;
     /**
      * `every` as `Array.prototype.every`
      */
@@ -134,26 +134,25 @@ export declare class Xiterable<T> {
     /**
      * `slice` as `Array.prototype.slice`
      */
-    slice(start?: number, end?: number): Xiterable<any>;
+    slice(start?: anyint, end?: anyint): Xiterable<T>;
     /**
      */
-    take(n: anyint): Xiterable<unknown>;
+    take(n: anyint): Xiterable<T>;
     /**
      */
-    drop(n: anyint): Xiterable<unknown>;
+    drop(n: anyint): Xiterable<T>;
     /**
      * returns an iterable with all elements replaced with `value`
-     * @param {*} value the value to replace each element
      */
-    filled(value: any): Xiterable<unknown>;
+    filled<U>(value: U): Xiterable<U>;
     /**
      * reverse the iterable.  `this` must be finite and random accessible.
      */
-    reversed(): Xiterable<unknown>;
+    reversed(): Xiterable<T>;
     /**
      * @returns {Xiterable}
      */
-    zip(...args: any[]): Xiterable<unknown>;
+    zip(...args: Iterable<any>[]): Xiterable<unknown>;
     /**
      * @returns {Xiterable}
      */
@@ -161,7 +160,7 @@ export declare class Xiterable<T> {
     /**
      * @returns {Xiterable}
      */
-    static zipWith(fn: anyfunction, ...args: any[]): any;
+    static zipWith(fn: anyfunction, ...args: any[]): Xiterable<any>;
     /**
      *  `xrange` like `xrange()` of Python 2 (or `range()` of Python 3)
      */

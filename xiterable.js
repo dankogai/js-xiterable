@@ -170,7 +170,7 @@ export class Xiterable {
         let i = this.length.constructor(0);
         for (const v of this.seed) {
             if (fn.call(thisArg, v, i++, this.seed))
-                return Number(i) - 1;
+                return --i;
         }
         return -1;
     }
@@ -398,7 +398,6 @@ export class Xiterable {
     }
     /**
      * returns an iterable with all elements replaced with `value`
-     * @param {*} value the value to replace each element
      */
     filled(value) {
         return this.map(() => value);
@@ -427,7 +426,7 @@ export class Xiterable {
      * @returns {Xiterable}
      */
     zip(...args) {
-        return Xiterable.zip(...[this].concat(args));
+        return Xiterable.zip(this, ...args);
     }
     //// MARK: static methods
     /**
@@ -436,9 +435,14 @@ export class Xiterable {
     static zip(...args) {
         const xargs = args.map(v => new Xiterable(v));
         const length = min(...xargs.map(v => v.length));
+        const ctor = this.length.constructor;
         const nth = length === Number.POSITIVE_INFINITY
             ? nthError
             : (n) => {
+                if (n < 0)
+                    n = ctor(n) + ctor(length);
+                if (n < 0 || length <= n)
+                    return undefined;
                 let result = [];
                 for (const x of xargs) {
                     result.push(x.nth(n));
@@ -464,7 +468,7 @@ export class Xiterable {
     static zipWith(fn, ...args) {
         if (typeof fn !== 'function')
             throw TypeError(`${fn} is not a function.`);
-        return Xiterable.zip.apply(null, args).map(a => fn.apply(null, a));
+        return Xiterable.zip(...args).map(a => fn.apply(null, a));
     }
     /**
      *  `xrange` like `xrange()` of Python 2 (or `range()` of Python 3)
