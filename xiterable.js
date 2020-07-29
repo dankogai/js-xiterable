@@ -436,19 +436,17 @@ export class Xiterable {
         const xargs = args.map(v => new Xiterable(v));
         const length = min(...xargs.map(v => v.length));
         const ctor = this.length.constructor;
-        const nth = length === Number.POSITIVE_INFINITY
-            ? nthError
-            : (n) => {
-                if (n < 0)
-                    n = ctor(n) + ctor(length);
-                if (n < 0 || length <= n)
-                    return undefined;
-                let result = [];
-                for (const x of xargs) {
-                    result.push(x.nth(n));
-                }
-                return result;
-            };
+        const nth = (n) => {
+            if (n < 0)
+                n = ctor(n) + ctor(length);
+            if (n < 0 || length <= n)
+                return undefined;
+            let result = [];
+            for (const x of xargs) {
+                result.push(x.nth(n));
+            }
+            return result;
+        };
         return new Xiterable(() => function* (them) {
             while (true) {
                 let elem = [];
@@ -511,7 +509,7 @@ export class Xiterable {
 }
 ;
 export const xiterable = (obj) => new Xiterable(obj);
-export const zip = Xiterable.zip;
-export const zipWith = Xiterable.zipWith;
-export const xrange = Xiterable.xrange;
-export const repeat = Xiterable.repeat;
+export const zip = Xiterable.zip.bind(Xiterable);
+export const zipWith = Xiterable.zipWith.bind(Xiterable);
+export const xrange = Xiterable.xrange.bind(Xiterable);
+export const repeat = Xiterable.repeat.bind(Xiterable);

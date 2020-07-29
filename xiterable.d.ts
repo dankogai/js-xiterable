@@ -170,8 +170,8 @@ export declare class Xiterable<T> {
     static repeat(value: any, times?: number): Xiterable<unknown>;
 }
 export declare const xiterable: (obj: any) => Xiterable<unknown>;
-export declare const zip: typeof Xiterable.zip;
-export declare const zipWith: typeof Xiterable.zipWith;
-export declare const xrange: typeof Xiterable.xrange;
-export declare const repeat: typeof Xiterable.repeat;
+export declare const zip: any;
+export declare const zipWith: any;
+export declare const xrange: any;
+export declare const repeat: any;
 export {};

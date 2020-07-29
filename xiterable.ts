@@ -172,7 +172,7 @@ export class Xiterable<T> {
     /**
      * `findIndex` as `Array.prototype.find`
      */
-    findIndex(fn: predicate<T>, thisArg?) : anyint {
+    findIndex(fn: predicate<T>, thisArg?): anyint {
         let i = this.length.constructor(0);
         for (const v of this.seed) {
             if (fn.call(thisArg, v, i++, this.seed)) return --i;
@@ -243,7 +243,7 @@ export class Xiterable<T> {
     /**
      *  `reduceRight` as `Array.prototype.reduceRight`
      */
-    reduceRight<U>(fn: accumulate<T, any>, initialValue?: U):U {
+    reduceRight<U>(fn: accumulate<T, any>, initialValue?: U): U {
         let it = this.reversed()
         return it.reduce.apply(it, arguments);
     }
@@ -387,7 +387,7 @@ export class Xiterable<T> {
     /**
      * returns an iterable with all elements replaced with `value`
      */
-    filled<U>(value:U) {
+    filled<U>(value: U) {
         return this.map(() => value)
     }
     /**
@@ -423,17 +423,15 @@ export class Xiterable<T> {
         const xargs = args.map(v => new Xiterable(v));
         const length = min(...xargs.map(v => v.length))
         const ctor = this.length.constructor;
-        const nth = length === Number.POSITIVE_INFINITY
-            ? nthError
-            : (n: anyint) => {
-                if (n < 0) n = ctor(n) + ctor(length);
-                if (n < 0 || length <= n) return undefined;
-                let result = [];
-                for (const x of xargs) {
-                    result.push(x.nth(n))
-                }
-                return result;
-            };
+        const nth = (n: anyint) => {
+            if (n < 0) n = ctor(n) + ctor(length);
+            if (n < 0 || length <= n) return undefined;
+            let result = [];
+            for (const x of xargs) {
+                result.push(x.nth(n))
+            }
+            return result;
+        };
         return new Xiterable(() => function* (them) {
             while (true) {
                 let elem = []
@@ -489,7 +487,7 @@ export class Xiterable<T> {
     }
 };
 export const xiterable = (obj) => new Xiterable(obj);
-export const zip = Xiterable.zip;
-export const zipWith = Xiterable.zipWith;
-export const xrange = Xiterable.xrange;
-export const repeat = Xiterable.repeat;
+export const zip = Xiterable.zip.bind(Xiterable);
+export const zipWith = Xiterable.zipWith.bind(Xiterable);
+export const xrange = Xiterable.xrange.bind(Xiterable);
+export const repeat = Xiterable.repeat.bind(Xiterable);
