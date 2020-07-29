@@ -8,14 +8,14 @@ describe('[...]', () => {
         $([...xrange(4)]).to.deep.equal([0, 1, 2, 3])
     );
 });
-describe('.prototype.map', () => {
+describe('.map()', () => {
     for (const f of [v => v * v, (v, i) => i * v]) {
         it(`[...xi.map(${f})] === [...xi].map(${f})`, () =>
             $([...xr4.map(f)]).to.deep.equal([...xr4].map(f))
         );
     }
 });
-describe('.prototype.{entries,values,keys}', () => {
+describe('.entries(), .values(), .keys()', () => {
     it(`[...xi.entries()] === [...[...xi].entries()])`, () =>
         $([...xr4.entries()]).to.deep.equal([...[...xr4].entries()])
     );
@@ -26,14 +26,14 @@ describe('.prototype.{entries,values,keys}', () => {
         $([...xr4.keys()]).to.deep.equal([...[...xr4].keys()])
     );
 });
-describe('.prototype.filter', () => {
+describe('.filter()', () => {
     for (const f of [v => v % 2, (v, i) => v === i]) {
         it(`[...xi.filter(${f})] === [...filter].fiter(${f})`, () =>
             $([...xr4.filter(f)]).to.deep.equal([...xr4].filter(f))
         );
     }
 });
-describe('.prototype.{indexOf,lastIndexOf}', () => {
+describe('.indexOf(), lastIndexOf()', () => {
     let str = 'dankogai'
     let xi = xiterable(str);
     it(`xi.indexOf('a') === [...xi].indexOf('a')`, () =>
@@ -57,25 +57,22 @@ describe('.prototype.{indexOf,lastIndexOf}', () => {
         );
     }
 });
-describe('.prototype.reduce', () => {
+describe('.reduce(), .reduceRight()', () => {
     const f = (a, v) => a + v;
-    it(`xi.reduce(${f}) === [...filter].reduce(${f})`, () =>
+    it(`xi.reduce(${f}) === [...xi].reduce(${f})`, () =>
         $(xr4.reduce(f)).to.equal([...xr4].reduce(f))
     );
-    it(`xi.reduce(${f}, '') === [...filter].reduce(${f}, '')`, () =>
+    it(`xi.reduce(${f}, '') === [...xi].reduce(${f}, '')`, () =>
         $(xr4.reduce(f, '')).to.equal([...xr4].reduce(f, ''))
     );
-});
-describe('.prototype.reduceRight', () => {
-    const f = (a, v) => a + v;
-    it(`xi.reduceRight(${f}) === [...filter].reduceRight(${f})`, () =>
+    it(`xi.reduceRight(${f}) === [...xi].reduceRight(${f})`, () =>
         $(xr4.reduceRight(f)).to.equal([...xr4].reduceRight(f))
     );
-    it(`xi.reduceRight(${f}, '') === [...filter].reduceRight(${f}, '')`, () =>
+    it(`xi.reduceRight(${f}, '') === [...xi].reduceRight(${f}, '')`, () =>
         $(xr4.reduceRight(f, '')).to.equal([...xr4].reduceRight(f, ''))
     );
 });
-describe('.prototype.slice', () => {
+describe('.slice()', () => {
     const ary = [...xrange(-4, 4)];
     for (const s of ary) {
         it(`[...xi.slice(${s})] === [...xi].slice(${s})`, () =>
