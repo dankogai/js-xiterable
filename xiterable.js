@@ -50,7 +50,7 @@ export class Xiterable {
                 throw TypeError(`${seed} is neither iterable or a generator`);
             }
             // treat obj as a generator
-            seed = Object.create(null, { [Symbol.iterator]: { value: seed } });
+            seed = { [Symbol.iterator]: seed };
         }
         else if (!nth) {
             if (typeof seed['nth'] === 'function') {
@@ -338,10 +338,8 @@ export class Xiterable {
             newlen = ctor(0);
         let nth = (i) => {
             if (i < 0)
-                i = newlen + i;
-            return i < start ? undefined
-                : newlen <= i ? undefined
-                    : this.nth(start + i);
+                i += newlen;
+            return 0 <= i && i < newlen ? this.nth(start + i) : undefined;
         };
         return new Xiterable(() => function* (it, ctor) {
             let i = ctor(-1);
@@ -365,10 +363,8 @@ export class Xiterable {
             newlen = ctor(this.length);
         let nth = (i) => {
             if (i < 0)
-                i = newlen + i;
-            return i < 0 ? undefined
-                : newlen <= i ? undefined
-                    : this.nth(0);
+                i += newlen;
+            return 0 <= i && i < newlen ? this.nth(i) : undefined;
         };
         return new Xiterable(() => function* (it, num) {
             let i = num(0), nn = num(n);
@@ -388,10 +384,8 @@ export class Xiterable {
             newlen = ctor(0);
         let nth = (i) => {
             if (i < 0)
-                i = newlen + i;
-            return i < n ? undefined
-                : newlen <= i ? undefined
-                    : this.nth(n + i);
+                i += newlen;
+            return 0 <= i && i < newlen ? this.nth(n + i) : undefined;
         };
         return new Xiterable(() => function* (it, num) {
             let i = num(0), nn = num(n);
@@ -420,13 +414,14 @@ export class Xiterable {
         const ctor = length.constructor;
         const nth = (n) => {
             const i = ctor(n) + ctor(n < 0 ? length : 0);
-            return this.nth(ctor(length) - i - ctor(1));
+            return 0 <= i && i < length
+                ? this.nth(ctor(length) - i - ctor(1)) : undefined;
         };
         return new Xiterable(() => function* (it, len) {
             let i = len;
             while (0 < i)
                 yield it.nth(--i);
-        }(this, this.length), this.length, nth);
+        }(this, length), length, nth);
     }
     /**
      * @returns {Xiterable}
