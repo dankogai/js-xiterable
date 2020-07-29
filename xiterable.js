@@ -20,8 +20,8 @@ export function isIterable(obj) {
 /**
  * `true` if `o` is an integer (Number with integral value or BigInt).
  */
-export function isInteger(o) {
-    return typeof o === 'number' ? (o | 0) === o : typeof o === 'bigint';
+export function isAnyInt(o) {
+    return typeof o === 'number' ? Number.isInteger(o) : typeof o === 'bigint';
 }
 function min(...args) {
     let result = Number.POSITIVE_INFINITY;
@@ -56,18 +56,16 @@ export class Xiterable {
             if (typeof seed['nth'] === 'function') {
                 nth = seed['nth'].bind(seed);
             }
-            else if (isInteger(seed['length'])) {
-                nth = (n) => seed[Number(n < 0 ? length + n : n)];
+            else if (isAnyInt(seed['length'])) {
+                nth = (n) => seed[Number((n < 0 ? seed['length'] : 0) + n)];
             }
         }
-        if (isInteger(seed['length'])) {
+        if (isAnyInt(seed['length']))
             length = seed['length'];
-        }
         if (!nth)
             nth = nthError;
-        Object.defineProperty(this, 'seed', { value: seed });
-        Object.defineProperty(this, 'length', { value: length });
-        Object.defineProperty(this, 'nth', { value: nth });
+        Object.assign(this, { seed: seed, length: length, nth: nth });
+        Object.freeze(this);
     }
     static get version() { return version; }
     static isIterable(obj) { return isIterable(obj); }
@@ -106,14 +104,13 @@ export class Xiterable {
      * `map` as `Array.prototype.map`
     */
     map(fn, thisArg) {
-        const seed = this.seed;
-        const nth = (n) => fn.call(thisArg, this.nth(n), n, seed);
-        return new Xiterable(() => function* (it, num) {
-            let i = num(0);
+        const nth = (n) => fn.call(thisArg, this.nth(n), n, this.seed);
+        return new Xiterable(() => function* (it, ctor) {
+            let i = ctor(0);
             for (const v of it) {
                 yield fn.call(thisArg, v, i++, it);
             }
-        }(seed, this.length.constructor), this.length, nth);
+        }(this.seed, this.length.constructor), this.length, nth);
     }
     /**
      * `forEach` as `Array.prototype.map`
@@ -147,8 +144,8 @@ export class Xiterable {
      */
     filter(fn, thisArg) {
         let seed = this.seed;
-        return new Xiterable(() => function* (it, num) {
-            let i = num(0);
+        return new Xiterable(() => function* (it, ctor) {
+            let i = ctor(0);
             for (const v of seed) {
                 if (!fn.call(thisArg, v, i++, seed))
                     continue;
@@ -293,8 +290,8 @@ export class Xiterable {
      * `some` as `Array.prototype.some`
      */
     some(fn, thisArg = null) {
-        return ((it, num) => {
-            let i = num(0);
+        return ((it, ctor) => {
+            let i = ctor(0);
             for (const v of it) {
                 if (fn.call(thisArg, v, i++, it))
                     return true;
@@ -321,6 +318,7 @@ export class Xiterable {
      * `slice` as `Array.prototype.slice`
      */
     slice(start = 0, end = Number.POSITIVE_INFINITY) {
+        // return this.drop(start).take(end - start);
         let ctor = this.length.constructor;
         if (start < 0 || end < 0) {
             if (this.isEndless) {
@@ -333,7 +331,6 @@ export class Xiterable {
         }
         if (end <= start)
             return new Xiterable([]);
-        // return this.drop(start).take(end - start);
         let newlen = end === Number.POSITIVE_INFINITY
             ? ctor(this.length) - ctor(start)
             : ctor(end) - ctor(start);
@@ -342,12 +339,12 @@ export class Xiterable {
         let nth = (i) => {
             if (i < 0)
                 i = newlen + i;
-            if (newlen <= i)
-                throw RangeError(`${i} is out of range`);
-            return this.nth(start + i);
+            return i < start ? undefined
+                : newlen <= i ? undefined
+                    : this.nth(start + i);
         };
-        return new Xiterable(() => function* (it, num) {
-            let i = num(-1);
+        return new Xiterable(() => function* (it, ctor) {
+            let i = ctor(-1);
             for (const v of it) {
                 ++i;
                 if (i < start)
@@ -369,9 +366,9 @@ export class Xiterable {
         let nth = (i) => {
             if (i < 0)
                 i = newlen + i;
-            if (newlen <= i)
-                throw RangeError(`${i} is out of range`);
-            return this.nth(i);
+            return i < 0 ? undefined
+                : newlen <= i ? undefined
+                    : this.nth(0);
         };
         return new Xiterable(() => function* (it, num) {
             let i = num(0), nn = num(n);
@@ -392,9 +389,9 @@ export class Xiterable {
         let nth = (i) => {
             if (i < 0)
                 i = newlen + i;
-            if (newlen <= i)
-                throw RangeError(`${i} is out of range`);
-            return this.nth(n + i);
+            return i < n ? undefined
+                : newlen <= i ? undefined
+                    : this.nth(n + i);
         };
         return new Xiterable(() => function* (it, num) {
             let i = num(0), nn = num(n);

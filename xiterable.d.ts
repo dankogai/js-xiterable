@@ -19,7 +19,7 @@ export declare function isIterable(obj: any): boolean;
 /**
  * `true` if `o` is an integer (Number with integral value or BigInt).
  */
-export declare function isInteger(o: any): boolean;
+export declare function isAnyInt(o: any): boolean;
 /**
  * main class
  */
@@ -32,7 +32,7 @@ export declare class Xiterable<T> {
     /**
      * @constructor
      */
-    constructor(seed: T, length?: anyint, nth?: subscript);
+    constructor(seed: Iterable<T> | anyfunction, length?: anyint, nth?: subscript);
     /**
      * `true` if this iterable is endless
      */
@@ -56,7 +56,7 @@ export declare class Xiterable<T> {
     /**
      * `map` as `Array.prototype.map`
     */
-    map<U>(fn: transform<T, U>, thisArg?: any): Xiterable<() => Generator<any, void, unknown>>;
+    map<U>(fn: transform<T, U>, thisArg?: any): Xiterable<unknown>;
     /**
      * `forEach` as `Array.prototype.map`
     */
@@ -64,19 +64,19 @@ export declare class Xiterable<T> {
     /**
     * `entries` as `Array.prototype.entries`
     */
-    entries(): Xiterable<() => Generator<any, void, unknown>>;
+    entries(): Xiterable<unknown>;
     /**
     * `keys` as `Array.prototype.keys`
     */
-    keys(): Xiterable<() => Generator<any, void, unknown>>;
+    keys(): Xiterable<unknown>;
     /**
     * `values` as `Array.prototype.values`
     */
-    values(): Xiterable<() => Generator<any, void, unknown>>;
+    values(): Xiterable<unknown>;
     /**
      * `filter` as `Array.prototype.filter`
      */
-    filter(fn: predicate<T>, thisArg?: any): Xiterable<() => Generator<T, void, unknown>>;
+    filter(fn: predicate<T>, thisArg?: any): Xiterable<unknown>;
     /**
      * `find` as `Array.prototype.find`
      */
@@ -108,11 +108,11 @@ export declare class Xiterable<T> {
     /**
      * `flat` as `Array.prototype.flat`
      */
-    flat(depth?: number): Xiterable<() => any>;
+    flat(depth?: number): Xiterable<unknown>;
     /**
      * `flatMap` as `Array.prototype.flatMap`
     */
-    flatMap<U>(fn: transform<T, U>, thisArg?: any): Xiterable<() => any>;
+    flatMap<U>(fn: transform<T, U>, thisArg?: any): Xiterable<unknown>;
     /**
     * `join` as `Array.prototype.join`
     * @param {String} separator
@@ -130,34 +130,34 @@ export declare class Xiterable<T> {
     /**
      * `concat` as `Array.prototype.concat`
      */
-    concat(...args: any[]): Xiterable<() => Generator<any, void, unknown>>;
+    concat(...args: any[]): Xiterable<unknown>;
     /**
      * `slice` as `Array.prototype.slice`
      */
-    slice(start?: number, end?: number): Xiterable<any[]>;
+    slice(start?: number, end?: number): Xiterable<any>;
     /**
      */
-    take(n: anyint): Xiterable<() => Generator<T, void, unknown>>;
+    take(n: anyint): Xiterable<unknown>;
     /**
      */
-    drop(n: anyint): Xiterable<() => Generator<T, void, unknown>>;
+    drop(n: anyint): Xiterable<unknown>;
     /**
      * returns an iterable with all elements replaced with `value`
      * @param {*} value the value to replace each element
      */
-    filled(value: any): Xiterable<() => Generator<any, void, unknown>>;
+    filled(value: any): Xiterable<unknown>;
     /**
      * reverse the iterable.  `this` must be finite and random accessible.
      */
-    reversed(): Xiterable<() => Generator<T, void, unknown>>;
+    reversed(): Xiterable<unknown>;
     /**
      * @returns {Xiterable}
      */
-    zip(...args: any[]): Xiterable<() => Generator<any[], void, unknown>>;
+    zip(...args: any[]): Xiterable<unknown>;
     /**
      * @returns {Xiterable}
      */
-    static zip(...args: Iterable<any>[]): Xiterable<() => Generator<any[], void, unknown>>;
+    static zip(...args: Iterable<any>[]): Xiterable<unknown>;
     /**
      * @returns {Xiterable}
      */
@@ -165,12 +165,12 @@ export declare class Xiterable<T> {
     /**
      *  `xrange` like `xrange()` of Python 2 (or `range()` of Python 3)
      */
-    static xrange(b: anyint, e: anyint, d: anyint): Xiterable<() => Generator<number | bigint, void, unknown>>;
+    static xrange(b: anyint, e: anyint, d: anyint): Xiterable<unknown>;
     /**
      */
-    static repeat(value: any, times?: number): Xiterable<() => Generator<any, void, unknown>>;
+    static repeat(value: any, times?: number): Xiterable<unknown>;
 }
-export declare const xiterable: (obj: any) => Xiterable<any>;
+export declare const xiterable: (obj: any) => Xiterable<unknown>;
 export declare const zip: typeof Xiterable.zip;
 export declare const zipWith: typeof Xiterable.zipWith;
 export declare const xrange: typeof Xiterable.xrange;

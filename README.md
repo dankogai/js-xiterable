@@ -233,7 +233,7 @@ for (const i of Xiterable.xrange()){ // infinite stream of 0, 1, ...
 [...Xiterable.xrange(1,5,2)]    // [1, 3] 
 ```
 
-### `Xiterable.repeat`
+#### `Xiterable.repeat`
 
 Returns an iterator with all elements are the same.
 
