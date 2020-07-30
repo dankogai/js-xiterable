@@ -54,7 +54,7 @@ import {
 remotely
 
 ```javascript
-import {Xiterable} from 'https://cdn.jsdelivr.net/npm/js-xiterable@0.0.3/xiterable.min.js';
+import {Xiterable} from 'https://cdn.jsdelivr.net/npm/js-xiterable@0.1.0/xiterable.min.js';
 ```
 
 ### commonjs (node.js)
@@ -89,7 +89,7 @@ undefined
 
 ### constructor
 
-from any built-in iterables…
+from any built-in iterables...
 
 ```javascript
 new Xiterable([0,1,2,3]);

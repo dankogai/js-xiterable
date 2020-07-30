@@ -1,11 +1,11 @@
 /**
  * xiterable.ts
  *
- * @version: 0.0.3
+ * @version: 0.1.0
  * @author: dankogai
  *
 */
-export declare const version = "0.0.3";
+export declare const version = "0.1.0";
 declare type anyint = number | bigint;
 declare type anyfunction = (...any: any[]) => any;
 declare type transform<T, U> = (T: any, anyint?: any, any?: any) => U;
