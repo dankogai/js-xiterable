@@ -9,6 +9,7 @@
     "xiterable.js",
     "xiterable.d.ts"
   ],
+  "runkitExample": "require=require(\"esm\")(module);\nvar $X=require(\"js-xiterable\");\n",
   "devDependencies": {
     "typescript": "^3.9.7",
     "@types/node": "^14.0.26",
