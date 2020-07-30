@@ -28,6 +28,8 @@ const zips = tens.zip(odds);
 [...zips];  // [[0, 1], [1, 9], [2, 25], [3, 49], [4, 81]]
 ```
 
+In other words, this module make any iterables work like `Array`, with `.map`, `.filter` and so on.
+
 ### Install
 
 ```shell
@@ -85,6 +87,81 @@ undefined
 
 ## Description
 
+### constructor
+
+from any built-in iterables…
+
+```javascript
+new Xiterable([0,1,2,3]);
+new Xiterable('0123');
+new Xiterable(new Uint8Array([0,1,2,3]))
+```
+
+or your custom generator (with no argument)...
+
+```javascript
+let it = new Xiterable(function *() {
+  let i = 0;
+  while (true) yield i++;
+});
+[...it.take(8)]; // [ 0, 1, 2, 3, 4, 5, 6, 7]
+```
+
+A factory function is also exported as `xiterable`.
+
+```javascript
+import {xiterable as $x} from 'js-xiterable';
+$x('01234567').zip('abcdefgh').map(v=>v.join('')).toArray(); /* [
+  '0a', '1b', '2c', '3d', '4e', '5f', '6g', '7h'
+] */
+```
+
+### Instance Methods
+
+#### `.toArray()`
+
+Returns `[...this]`.
+
+#### `.nth`
+
+`.nth(n)` returns the nth element of `this` if the original itertor has `.nth` or Array-like (can access nth element via `[n]`.  In which case `nth()` is auto-generated).
+
+#### `.map`
+
+`.map(fn, thisArg?)` works just like `Array.prototype.map` except:
+
+* `.map` of this module works with infinite iterables. 
+
+* if `this` is finite with working `.nth`, the resulting iterable is also reversible with `.reversed` and random-accissible via `.nth`.
+
+#### `.filter`
+
+`.filter(fn, thisArg?)` works just like `Array.prototype.filter` except:
+
+* `.filter` of this module works with infinite iterables. 
+
+* unlike `.map` the resulting iterable is always marked infinite  because there is no way to know its length lazily, that is, prior to iteration.
+
+#### `.take`
+
+`.take(n)` returns an iterator that takes first `n` elements of `this`.
+
+#### `.drop`
+
+`.drop(n)` returns the iterator that drops first `n` elements of `this`.
+
+#### `.zip`
+
+`.zip(...args)` zips iterators in the `args`. Static version also [available](#Xiterablezip).
+
+```javascript
+[...Xiterable.xrange().zip('abcd')]   // [[0,"a"],[1,"b"],[2,"c"],[3,"d"]]
+```
+
+#### `.reversed`
+
+returns an iterator that returns elements in reverse order.  `this` must be finite and random-accesible via `.nth()` or exception is thrown.
+
 ### instance methods found in `Array.prototype`
 
 The following methods in `Array.prototype` are supported as follows.   For any method `meth`, `[...iter.meth(arg)]` deeply equals to `[...iter].meth(arg)`.
@@ -96,7 +173,7 @@ The following methods in `Array.prototype` are supported as follows.   For any m
 |[entries]      | ✔︎ |   |
 |[every]        | ✔︎ |   |
 |[fill]         | ❌ | mutating ; see [repeat](#xiterablerepeat) |
-|[filter]       | ✔︎ |   |
+|[filter]       | ✔︎ | see [filter](#filter) |
 |[find]         | ✔︎ |   |
 |[findIndex]    | ✔︎ |   |
 |[flat]         | ✔︎ |   |
@@ -107,7 +184,7 @@ The following methods in `Array.prototype` are supported as follows.   For any m
 |[join]         | ✔︎ |   |
 |[keys]         | ✔︎ |   |
 |[lastIndexOf]  | ✔︎*| * throws `RangeError` on infinite iterables if the 2nd arg is negative|
-|[map]          | ✔︎ |   |
+|[map]          | ✔︎ | see [map](#map) |
 |[pop]          | ❌ | mutating |
 |[push]         | ❌ | mutating |
 |[reduce]       | ✔︎* | * throws `RangeError` on infinite iterables |
@@ -155,36 +232,6 @@ The following methods in `Array.prototype` are supported as follows.   For any m
 [splice]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice
 [unshift]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift
 [values]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/values
-
-### other instance methods
-
-#### `.toArray()`
-
-Returns `[...this]`.
-
-#### `.take`
-
-`.take(n)` returns an iterator that takes first `n` elements of `this`.
-
-#### `.drop`
-
-`.drop(n)` returns the iterator that drops first `n` elements of `this`.
-
-#### `.zip`
-
-`.zip(...args)` zips iterators in the `args`. Static version also [available](#Xiterablezip).
-
-```javascript
-[...Xiterable.xrange().zip('abcd')]   // [[0,"a"],[1,"b"],[2,"c"],[3,"d"]]
-```
-
-#### `.nth`
-
-`.nth(n)` returns the nth element of `this` if the original itertor has `.nth` or Array-like (can access nth element via `[n]`).
-
-#### `.reversed`
-
-returns an iterator that returns elements in reverse order.  `this` must be finite and random-accesible via `.nth()` or exception is thrown.
 
 ### static methods
 
