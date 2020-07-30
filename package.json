@@ -4,8 +4,14 @@
   "description": "Make ES6 Iterators Functional Again",
   "main": "xiterable.js",
   "module": "xiterable.js",
-  "files": ["xiterable.js"],
+  "types": "xiterable.d.ts",
+  "files": [
+    "xiterable.js",
+    "xiterable.d.ts"
+  ],
   "devDependencies": {
+    "typescript": "^3.9.7",
+    "@types/node": "^14.0.26",
     "esm": "^3.2.25",  
     "mocha": "^8.0.0",
     "chai": "^4.2.0"
