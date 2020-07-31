@@ -102,9 +102,20 @@ or your custom generator (with no argument)...
 ```javascript
 let it = new Xiterable(function *() {
   let i = 0;
-  while (true) yield i++;
+  for (;;) yield i++;
 });
 [...it.take(8)]; // [ 0, 1, 2, 3, 4, 5, 6, 7]
+```
+
+Generators are treated as an infinite iterable.  But you can override it by giving its length for the 2nd argument and the implentation of `nth` for the 3rd argument.  see [.nth()](#nth) and [.map()](#map) for more example.
+
+```javascript
+let it = new Xiterable(function *() {
+  let i = 0;
+  for (;;) yield i++;
+}, Number.POSIVE_INFINITY, n => n);
+it.nth(42); // 42
+it.take(42).reversed().nth(0) // 41
 ```
 
 A factory function is also exported as `xiterable`.
@@ -116,17 +127,89 @@ $x('01234567').zip('abcdefgh').map(v=>v.join('')).toArray(); /* [
 ] */
 ```
 
-### Instance Methods
+### Instance Methods and Properties
 
 #### `.toArray()`
 
 Returns `[...this]`.
 
-#### `.nth`
+#### `.nth()`
 
 `.nth(n)` returns the nth element of `this` if the original itertor has `.nth` or Array-like (can access nth element via `[n]`.  In which case `nth()` is auto-generated).
 
-#### `.map`
+Unlike `[n]`, `.nth(n)` accepts `BigInt` and negatives.
+
+```javascript
+let it = xiterable('javascript');
+it.nth(0);    // 'j'
+it.nth(0n);   // 'j'
+it.nth(9);    // 't'
+it.nth(-1);   // 't'
+it.nth(-1n);  // 't'
+it.nth(-10);  // 'j'
+```
+
+It raises exceptions on infinite (and indefinite) iterables
+
+```javascript
+it = xiterable(function*(){ for(;;) yield 42 }); // infinite
+[...it.take(42)]; // Array(42).fill(42)
+it.nth(0);  // throws TypeError;
+```
+
+```javascript
+it = xiterable('javascript');
+it = it.filter(v=>!new Set('aeiou').has(v)); // indefinite
+[...it];  // ['j', 'v', 's', 'c', 'r', 'p', 't']
+it.nth(0); // throws TypeError;
+```
+
+[js-combinatorics]: https://github.com/dankogai/js-combinatorics
+
+`BigInt` is sometimes necessary when you deal with large -- combinatorially large -- iterables like [js-combinatorics] handles.
+
+```javascript
+import * as $C from 'js-combinatorics';
+let it = xiterable(new $C.Permutation('abcdefghijklmnopqrstuvwxyz'));
+it = it.map(v=>v.join(''));
+it.nth(0);    // 'abcdefghijklmnopqrstuvwxyz'
+it.nth(-1);   // 'zyxwvutsrqponmlkjihgfedcba'
+it.nth(403291461126605635583999999n) === it.nth(-1);  // true
+```
+
+#### `.length`
+
+The (maximum) number of elements in the iterable.  For infinite (or indefinite iterables like the result of `.filter()`) `Number.POSITIVE_INFINITY` is set. 
+
+```javascript
+it = xiterable('javascript');
+it.length;  // 10
+it = it.filter(v=>!new Set('aeiou').has(v));
+it.length;      // Number.POSITIVE_INFINITY
+[...it].length; // 7
+```
+
+The number can be `BigInt` for very large iterable.
+
+```javascript
+it = xiterable(new $C.Permutation('abcdefghijklmnopqrstuvwxyz'));
+it.lenth; // 403291461126605635584000000n
+```
+
+You can tell if the iterable is infinite or indefinite via `.isEndless`.
+
+```javascript
+it = xiterable('javascript');
+it.isEndless; // false
+it = it.filter(v=>!new Set('aeiou').has(v));
+it.isEndless; // true
+it = xiterable(new $C.Permutation('abcdefghijklmnopqrstuvwxyz'));
+it.isEndless; // false
+it = xiterable(function*(){ for(;;) yield 42 }); 
+it.isEndless;  // true
+```
+
+#### `.map()`
 
 `.map(fn, thisArg?)` works just like `Array.prototype.map` except:
 
@@ -134,23 +217,31 @@ Returns `[...this]`.
 
 * if `this` is finite with working `.nth`, the resulting iterable is also reversible with `.reversed` and random-accissible via `.nth`.
 
-#### `.filter`
+```javascript
+it = xiterable(function*(){ let i = 0; for(;;) yield i++ });
+[...it.map(v=>v*v).take(8)] // [0,  1,  4,  9, 16, 25, 36, 49]
+it.nth(42); // throws TypeError
+it = xiterable(it.seed, it.length, n=>n); //  installs nth
+it.nth(42); // 41
+```
+
+#### `.filter()`
 
 `.filter(fn, thisArg?)` works just like `Array.prototype.filter` except:
 
 * `.filter` of this module works with infinite iterables. 
 
-* unlike `.map` the resulting iterable is always marked infinite  because there is no way to know its length lazily, that is, prior to iteration.
+* unlike [.map()](#map) the resulting iterable is always marked infinite  because there is no way to know its length lazily, that is, prior to iteration.  See [.length](#length) for example
 
-#### `.take`
+#### `.take()`
 
 `.take(n)` returns an iterator that takes first `n` elements of `this`.
 
-#### `.drop`
+#### `.drop()`
 
 `.drop(n)` returns the iterator that drops first `n` elements of `this`.
 
-#### `.zip`
+#### `.zip()`
 
 `.zip(...args)` zips iterators in the `args`. Static version also [available](#Xiterablezip).
 
