@@ -494,7 +494,7 @@ export class Xiterable {
             if (n < 0)
                 n = ctor(len) + ctor(n);
             if (len <= n)
-                throw RangeError(`${n} is out of range`);
+                return undefined;
             return ctor(b) + ctor(d) * ctor(n);
         };
         return new Xiterable(() => function* (b, e, d) {

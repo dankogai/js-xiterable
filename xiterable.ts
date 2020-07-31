@@ -474,7 +474,7 @@ export class Xiterable<T> {
         let ctor = b.constructor;
         let nth = (n: anyint) => {
             if (n < 0) n = ctor(len) + ctor(n);
-            if (len <= n) throw RangeError(`${n} is out of range`);
+            if (len <= n) return undefined;
             return ctor(b) + ctor(d) * ctor(n);
         }
         return new Xiterable(() => function* (b, e, d) {
