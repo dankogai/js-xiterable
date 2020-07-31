@@ -57,7 +57,9 @@ export class Xiterable {
                 nth = seed['nth'].bind(seed);
             }
             else if (isAnyInt(seed['length'])) {
-                nth = (n) => seed[Number((n < 0 ? seed['length'] : 0) + n)];
+                const len = seed['length'];
+                const ctor = len.constructor;
+                nth = (n) => seed[ctor(n < 0 ? len : 0) + ctor(n)];
             }
         }
         if (isAnyInt(seed['length']))
@@ -69,6 +71,12 @@ export class Xiterable {
     }
     static get version() { return version; }
     static isIterable(obj) { return isIterable(obj); }
+    /*
+     *
+     */
+    make(...args) {
+        return new (Function.prototype.bind.apply(this, [null, ...args]));
+    }
     /**
      * `true` if this iterable is endless
      */
@@ -508,7 +516,7 @@ export class Xiterable {
     }
 }
 ;
-export const xiterable = (obj) => new Xiterable(obj);
+export const xiterable = (...args) => Xiterable.make(...args);
 export const zip = Xiterable.zip.bind(Xiterable);
 export const zipWith = Xiterable.zipWith.bind(Xiterable);
 export const xrange = Xiterable.xrange.bind(Xiterable);

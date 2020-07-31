@@ -33,6 +33,7 @@ export declare class Xiterable<T> {
      * @constructor
      */
     constructor(seed: Iterable<T> | anyfunction, length?: anyint, nth?: subscript);
+    make(...args: any[]): any;
     /**
      * `true` if this iterable is endless
      */
@@ -169,7 +170,7 @@ export declare class Xiterable<T> {
      */
     static repeat(value: any, times?: number): Xiterable<unknown>;
 }
-export declare const xiterable: (obj: any) => Xiterable<unknown>;
+export declare const xiterable: (...args: any[]) => any;
 export declare const zip: any;
 export declare const zipWith: any;
 export declare const xrange: any;
