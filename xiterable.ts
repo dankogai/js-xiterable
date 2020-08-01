@@ -1,11 +1,11 @@
 /**
  * xiterable.ts
  *
- * @version: 0.1.2
+ * @version: 0.1.3
  * @author: dankogai
  *
 */
-export const version = '0.1.2';
+export const version = '0.1.3';
 //  MARK: types
 type anyint = number | bigint;
 declare const BigInt: typeof Number;
