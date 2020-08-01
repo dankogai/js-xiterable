@@ -43,11 +43,7 @@ locally
 ```javascript
 import {
   Xiterable,
-  xiterable,
-  zip,
-  zipWith,
-  xrange,
-  repeat
+  xiterable, zip, zipWith, xrange, repeat
 } from './xiterable.js';
 ```
 
@@ -68,19 +64,20 @@ use [babel] or [esm].
 % node -r esm
 Welcome to Node.js v14.5.0.
 Type ".help" for more information.
-> import * as _X from './xiterable.js'
+> import * as $X from 'js-xiterable'
 undefined
-> _X
+> $X
 [Module] {
   Xiterable: [Function: Xiterable],
   isIterable: [Function: isIterable],
   repeat: [Function: repeat],
+  version: '0.0.3',
   xiterable: [Function: xiterable],
   xrange: [Function: xrange],
   zip: [Function: zip],
   zipWith: [Function: zipWith]
 }
-> [..._X.xrange(10).filter(v=>v%2).map(v=>v*v)]
+> [...$X.xrange().take(10).filter(v=>v%2).map(v=>v*v)]
 [ 1, 9, 25, 49, 81 ]
 > 
 ```
