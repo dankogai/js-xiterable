@@ -48,7 +48,7 @@ import {
   zipWith,
   xrange,
   repeat
-} from './xiterable.js`;
+} from './xiterable.js';
 ```
 
 remotely
@@ -253,7 +253,7 @@ it.nth(42); // 41
 
 returns an iterator that returns elements in reverse order.  `this` must be finite and random-accesible via `.nth()` or exception is thrown.
 
-### instance methods found in `Array.prototype`
+### Instance methods found in `Array.prototype`
 
 The following methods in `Array.prototype` are supported as follows.   For any method `meth`, `[...iter.meth(arg)]` deeply equals to `[...iter].meth(arg)`.
 
@@ -271,10 +271,10 @@ The following methods in `Array.prototype` are supported as follows.   For any m
 |[flatMap]      | ✔︎ |   |
 |[forEach]      | ✔︎ |   |
 |[includes]     | ✔︎*| * throws `RangeError` on infinite iterables if the 2nd arg is negative |
-|[indexOf]      | ✔︎*| * throws `RangeError` on infinite iterables if the 2nd arg is negative|
+|[indexOf]      | ✔︎*| * throws `RangeError` on infinite iterables if the 2nd arg is negative |
 |[join]         | ✔︎ |   |
 |[keys]         | ✔︎ |   |
-|[lastIndexOf]  | ✔︎*| * throws `RangeError` on infinite iterables if the 2nd arg is negative|
+|[lastIndexOf]  | ✔︎*| * throws `RangeError` on infinite iterables if the 2nd arg is negative |
 |[map]          | ✔︎ | see [map](#map) |
 |[pop]          | ❌ | mutating |
 |[push]         | ❌ | mutating |
