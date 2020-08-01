@@ -43,15 +43,15 @@ export declare class Xiterable<T> {
      * @param {*} args
      * @returns {Xiterable}
      */
-    static make(...args: any[]): any;
+    static of(...args: any[]): any;
     /**
-     * Same as `make` but takes a single array `arg`
+     * Same as `of` but takes a single array `arg`
      *
      * cf. https://stackoverflow.com/questions/1606797/use-of-apply-with-new-operator-is-this-possible
      * @param {Array} arg
      * @returns {Xiterable}
      */
-    static vmake(arg: any): any;
+    static from(arg: any): any;
     [Symbol.iterator](): Iterator<T, any, undefined>;
     toArray(): T[];
     /**

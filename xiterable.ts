@@ -83,7 +83,7 @@ export class Xiterable<T> {
      *
      */
     make(...args) {
-        return new (Function.prototype.bind.apply(this, [null,...args]));
+        return new (Function.prototype.bind.apply(this, [null, ...args]));
     }
     /**
      * `true` if this iterable is endless
@@ -96,17 +96,17 @@ export class Xiterable<T> {
      * @param {*} args
      * @returns {Xiterable}
      */
-    static make(...args) {
+    static of(...args) {
         return new (Function.prototype.bind.apply(this, [null].concat(args)));
     }
     /**
-     * Same as `make` but takes a single array `arg`
+     * Same as `of` but takes a single array `arg`
      * 
      * cf. https://stackoverflow.com/questions/1606797/use-of-apply-with-new-operator-is-this-possible
      * @param {Array} arg
      * @returns {Xiterable}
      */
-    static vmake(arg) {
+    static from(arg) {
         return new (Function.prototype.bind.apply(this, [null].concat(arg)));
     }
     [Symbol.iterator]() {
@@ -120,13 +120,17 @@ export class Xiterable<T> {
      * `map` as `Array.prototype.map`
     */
     map<U>(fn: transform<T, U>, thisArg?): Xiterable<U> {
+        const len = this.length;
+        const ctor = len.constructor;
+        const iter = this.seed;
         const nth = (n: anyint) => fn.call(thisArg, this.nth(n), n, this.seed);
-        return new Xiterable(() => function* (it, ctor) {
+        const gen = function* () {
             let i = ctor(0);
-            for (const v of it) {
-                yield fn.call(thisArg, v, i++, it);
+            for (const v of iter) {
+                yield fn.call(thisArg, v, i++, iter);
             }
-        }(this.seed, this.length.constructor), this.length, nth);
+        };
+        return new Xiterable(gen, len, nth);
     }
     /**
      * `forEach` as `Array.prototype.map`
@@ -159,14 +163,16 @@ export class Xiterable<T> {
      * `filter` as `Array.prototype.filter`
      */
     filter(fn: predicate<T>, thisArg?): Xiterable<T> {
-        let seed = this.seed;
-        return new Xiterable(() => function* (it, ctor) {
+        const iter = this.seed;
+        const ctor = this.length.constructor;
+        const gen = function* () {
             let i = ctor(0);
-            for (const v of seed) {
-                if (!fn.call(thisArg, v, i++, seed)) continue;
+            for (const v of iter) {
+                if (!fn.call(thisArg, v, i++, iter)) continue;
                 yield v;
             }
-        }(this.seed, this.length.constructor));
+        };
+        return new Xiterable(gen);
     }
     /**
      * `find` as `Array.prototype.find`
@@ -191,13 +197,14 @@ export class Xiterable<T> {
     * `indexOf` as `Array.prototype.indexOf`
     */
     indexOf(valueToFind, fromIndex: anyint = 0): anyint {
-        const ctor = this.length.constructor;
+        const len = this.length;
+        const ctor = len.constructor;
         fromIndex = ctor(fromIndex);
         if (fromIndex < 0) {
             if (this.isEndless) {
                 throw new RangeError('an infinite iterable cannot go backwards');
             }
-            fromIndex = ctor(this.length) + ctor(fromIndex);
+            fromIndex = ctor(len) + ctor(fromIndex);
             if (fromIndex < 0) fromIndex = 0;
         }
         return this.entries().findIndex(
@@ -208,22 +215,22 @@ export class Xiterable<T> {
     * `lastIndexOf` as `Array.prototype.lastIndexOf`
     */
     lastIndexOf(valueToFind, fromIndex?: anyint): anyint {
-        const ctor = this.length.constructor;
-        fromIndex = arguments.length == 1
-            ? ctor(this.length) - ctor(1) : ctor(fromIndex);
         if (this.isEndless) {
             throw new RangeError('an infinite iterable cannot go backwards');
         }
+        const len = this.length;
+        const ctor = len.constructor;
+        fromIndex = arguments.length == 1
+            ? ctor(len) - ctor(1) : ctor(fromIndex);
         if (fromIndex < 0) {
-            fromIndex = ctor(this.length) + ctor(fromIndex);
+            fromIndex = ctor(len) + ctor(fromIndex);
             if (fromIndex < 0) fromIndex = 0;
         }
-        const offset = ctor(this.length) - ctor(1)
+        const offset = ctor(len) - ctor(1)
         fromIndex = offset - ctor(fromIndex);
-        let it = this.reversed()
-        let idx = it.indexOf(valueToFind, ctor(fromIndex));
+        const idx = this.reversed().indexOf(valueToFind, ctor(fromIndex));
         if (idx === -1) return -1;
-        return ctor(this.length) - ctor(idx) - ctor(1);
+        return ctor(len) - ctor(idx) - ctor(1);
     }
     /**
      * `includes` as `Array.prototype.includes`
@@ -288,47 +295,43 @@ export class Xiterable<T> {
      * `every` as `Array.prototype.every`
      */
     every(fn: predicate<T>, thisArg = null) {
-        return ((it, num) => {
-            let i = num(0);
-            for (const v of it) {
-                if (!fn.call(thisArg, v, i++, it)) return false;
-            }
-            return true;
-        })(this.seed, this.length.constructor);
+        let i = this.length.constructor(0);
+        for (const v of this.seed) {
+            if (!fn.call(thisArg, v, i++, this.seed)) return false;
+        }
+        return true;
+
     }
     /**
      * `some` as `Array.prototype.some`
      */
     some(fn: predicate<T>, thisArg = null) {
-        return ((it, ctor) => {
-            let i = ctor(0);
-            for (const v of it) {
-                if (fn.call(thisArg, v, i++, it)) return true;
-            }
-            return false;
-        })(this.seed, this.length.constructor);
+        let i = this.length.constructor(0);
+        for (const v of this.seed) {
+            if (fn.call(thisArg, v, i++, this.seed)) return true;
+        }
+        return false;
     }
     /**
      * `concat` as `Array.prototype.concat`
      */
     concat(...args) {
-        function* _gen(head, rest) {
+        const head = this.seed;
+        const rest = args.map(v => (Object(v) === v ? v : [v]));
+        const gen = function* () {
             for (const v of head) yield v;
             for (const it of rest) {
                 for (const v of it) yield v;
             }
         };
-        return new Xiterable(() => _gen(
-            this.seed,    /* check if v is primitive and wrap if so */
-            args.map(v => (Object(v) === v ? v : [v]))
-        ));
+        return new Xiterable(gen);
     }
     /**
      * `slice` as `Array.prototype.slice`
      */
     slice(start: anyint = 0, end: anyint = Number.POSITIVE_INFINITY): Xiterable<T> {
         // return this.drop(start).take(end - start);
-        let ctor = this.length.constructor;
+        const ctor = this.length.constructor;
         if (start < 0 || end < 0) {
             if (this.isEndless) {
                 throw new RangeError('negative indexes cannot be used')
@@ -337,60 +340,66 @@ export class Xiterable<T> {
             if (end < 0) end = ctor(this.length) + ctor(end);
         }
         if (end <= start) return new Xiterable([]);
-        let newlen = end === Number.POSITIVE_INFINITY
+        let len = end === Number.POSITIVE_INFINITY
             ? ctor(this.length) - ctor(start)
             : ctor(end) - ctor(start);
-        if (newlen < 0) newlen = ctor(0);
-        let nth = (i) => {
-            if (i < 0) i += newlen;
-            return 0 <= i && i < newlen ? this.nth(start + i) : undefined;
+        if (len < 0) len = ctor(0);
+        const nth = (i) => {
+            if (i < 0) i += len;
+            return 0 <= i && i < len ? this.nth(start + i) : undefined;
         }
-        return new Xiterable(() => function* (it, ctor) {
+        const iter = this.seed;
+        const gen = function* () {
             let i = ctor(-1);
-            for (const v of it) {
+            for (const v of iter) {
                 ++i;
                 if (i < start) continue;
                 if (end <= i) break;
                 yield v;
             }
-        }(this.seed, ctor), newlen, nth);
+        };
+        return new Xiterable(gen, len, nth);
     }
     //// MARK: functional methods not defined above
     /**
      */
     take(n: anyint): Xiterable<T> {
-        let ctor = this.length.constructor;
-        let newlen = ctor(n);
-        if (ctor(this.length) < newlen) newlen = ctor(this.length);
-        let nth = (i) => {
-            if (i < 0) i += newlen;
-            return 0 <= i && i < newlen ? this.nth(i) : undefined;
-        }
-        return new Xiterable(() => function* (it, num) {
-            let i = num(0), nn = num(n);
-            for (const v of it) {
+        const ctor = this.length.constructor;
+        let len = ctor(n);
+        if (ctor(this.length) < len) len = ctor(this.length);
+        const nth = (i) => {
+            if (i < 0) i += len;
+            return 0 <= i && i < len ? this.nth(i) : undefined;
+        };
+        const iter = this.seed;
+        const gen = function* () {
+            let i = ctor(0), nn = ctor(n);
+            for (const v of iter) {
                 if (nn <= i++) break;
                 yield v;
             }
-        }(this.seed, ctor), newlen, nth);
+        };
+        return new Xiterable(gen, len, nth);
     }
     /**
      */
     drop(n: anyint): Xiterable<T> {
-        let ctor = this.length.constructor;
-        let newlen = ctor(this.length) - ctor(n);
-        if (newlen < 0) newlen = ctor(0);
-        let nth = (i) => {
-            if (i < 0) i += newlen;
-            return 0 <= i && i < newlen ? this.nth(n + i) : undefined;
+        const ctor = this.length.constructor;
+        let len = ctor(this.length) - ctor(n);
+        if (len < 0) len = ctor(0);
+        const nth = (i) => {
+            if (i < 0) i += len;
+            return 0 <= i && i < len ? this.nth(n + i) : undefined;
         }
-        return new Xiterable(() => function* (it, num) {
-            let i = num(0), nn = num(n);
-            for (const v of it) {
+        const iter = this.seed;
+        const gen = function* () {
+            let i = ctor(0), nn = ctor(n);
+            for (const v of iter) {
                 if (i++ < nn) continue;
                 yield v;
             }
-        }(this.seed, ctor), newlen, nth);
+        }
+        return new Xiterable(gen, len, nth);
     }
     /**
      * returns an iterable with all elements replaced with `value`
@@ -405,17 +414,19 @@ export class Xiterable<T> {
         if (this.isEndless || this.nth === nthError) {
             throw new RangeError('cannot reverse an infinite iterable');
         }
-        let length = this.length;
-        const ctor = length.constructor;
+        let len = this.length;
+        const ctor = len.constructor;
         const nth = (n) => {
-            const i = ctor(n) + ctor(n < 0 ? length : 0);
-            return 0 <= i && i < length
-                ? this.nth(ctor(length) - i - ctor(1)) : undefined;
+            const i = ctor(n) + ctor(n < 0 ? len : 0);
+            return 0 <= i && i < len
+                ? this.nth(ctor(len) - i - ctor(1)) : undefined;
         };
-        return new Xiterable(() => function* (it, len) {
+        const iter = this;
+        const gen = function* () {
             let i = len;
-            while (0 < i) yield it.nth(--i);
-        }(this, length), length, nth);
+            while (0 < i) yield iter.nth(--i);
+        };
+        return new Xiterable(gen, len, nth);
     }
     /**
      * @returns {Xiterable}
@@ -429,18 +440,19 @@ export class Xiterable<T> {
      */
     static zip(...args: Iterable<any>[]) {
         const xargs = args.map(v => new Xiterable(v));
-        const length = min(...xargs.map(v => v.length))
+        const len = min(...xargs.map(v => v.length))
         const ctor = this.length.constructor;
         const nth = (n: anyint) => {
-            if (n < 0) n = ctor(n) + ctor(length);
-            if (n < 0 || length <= n) return undefined;
+            if (n < 0) n = ctor(n) + ctor(len);
+            if (n < 0 || len <= n) return undefined;
             let result = [];
             for (const x of xargs) {
                 result.push(x.nth(n))
             }
             return result;
         };
-        return new Xiterable(() => function* (them) {
+        const gen = function* () {
+            const them = xargs.map(v => v[Symbol.iterator]());
             while (true) {
                 let elem = []
                 for (const it of them) {
@@ -450,7 +462,8 @@ export class Xiterable<T> {
                 }
                 yield elem;
             }
-        }(xargs.map(v => v[Symbol.iterator]())), length, nth);
+        };
+        return new Xiterable(gen, len, nth);
     }
     /**
      * @returns {Xiterable}
@@ -468,33 +481,36 @@ export class Xiterable<T> {
         if (typeof b === 'undefined') [b, e, d] = [0, Number.POSITIVE_INFINITY, 1]
         if (typeof e === 'undefined') [b, e, d] = [0, b, 1]
         if (typeof d === 'undefined') [b, e, d] = [b, e, 1]
-        let len = typeof b === 'bigint'
+        const len = typeof b === 'bigint'
             ? (BigInt(e) - BigInt(b)) / BigInt(d)
             : Math.floor((Number(e) - Number(b)) / Number(d));
-        let ctor = b.constructor;
-        let nth = (n: anyint) => {
+        const ctor = b.constructor;
+        const nth = (n: anyint) => {
             if (n < 0) n = ctor(len) + ctor(n);
             if (len <= n) return undefined;
             return ctor(b) + ctor(d) * ctor(n);
         }
-        return new Xiterable(() => function* (b, e, d) {
+        const gen = function* () {
             let i = b;
             while (i < e) {
                 yield i;
                 i += ctor(d);
             }
-        }(b, e, d), len, nth);
+        };
+        return new Xiterable(gen, len, nth);
     }
     /** 
      */
     static repeat(value, times = Number.POSITIVE_INFINITY) {
-        return new Xiterable(function* () {
+        const nth = (n) => n < 0 ? undefined : value;
+        const gen = function* () {
             let i = 0;
             while (i++ < times) yield value;
-        }, times, (n) => value);
+        }
+        return new Xiterable(gen, times, nth);
     }
 };
-export const xiterable = (...args) => Xiterable.make(...args);
+export const xiterable = (...args) => Xiterable.of(...args);
 export const zip = Xiterable.zip.bind(Xiterable);
 export const zipWith = Xiterable.zipWith.bind(Xiterable);
 export const xrange = Xiterable.xrange.bind(Xiterable);
