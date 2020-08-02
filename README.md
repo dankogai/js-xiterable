@@ -10,7 +10,7 @@ Suppose we have a generator like this.
 
 ```javascript
 function* count(n) {
-    for (let i = 0; i < n; i++) yield i++;
+    for (let i = 0; i < n; i++) yield i;
 };
 ```
 
@@ -18,7 +18,7 @@ We make it more functional like this.
 
 ```javascript
 import {Xiterable} from './xiterable.js';
-const xcount = new Xiterable(n => count(n));
+const xcount = n => new Xiterable(() => count(n));
 const tens = xcount(10);
 const odds = tens.filter(v=>v%2).map(v=>v*v);
 const zips = tens.zip(odds);
@@ -97,18 +97,17 @@ or your custom generator (with no argument)...
 
 ```javascript
 let it = new Xiterable(function *() {
-  let i = 0;
-  for (;;) yield i++;
+  for (let i = 0; true; i++) yield i++;
 });
 [...it.take(8)]; // [ 0, 1, 2, 3, 4, 5, 6, 7]
+[...it.take(8).reversed()]  // throws TypeError;
 ```
 
 Generators are treated as an infinite iterable.  But you can override it by giving its length for the 2nd argument and the implentation of `nth` for the 3rd argument.  see [.nth()](#nth) and [.map()](#map) for more example.
 
 ```javascript
 let it = new Xiterable(function *() {
-  let i = 0;
-  for (;;) yield i++;
+    for (let i = 0; true; i++) yield i++;
 }, Number.POSIVE_INFINITY, n => n);
 it.nth(42); // 42
 it.take(42).reversed().nth(0) // 41
