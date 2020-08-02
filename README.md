@@ -234,7 +234,15 @@ it.nth(42); // 41
 
 #### `.drop()`
 
-`.drop(n)` returns the iterator that drops first `n` elements of `this`.
+`.drop(n)` returns an iterator that drops first `n` elements of `this`.
+
+#### `.filled()`
+
+`.filled(value)` returns an iterator with all elements replaced with `value`.  See also [Xiterable.repeat](#xiterablerepeat).
+
+#### `.reversed()`
+
+`.reversed()` returns an iterator that returns elements in reverse order.  `this` must be finite and random-accesible via `.nth()` or exception is thrown.
 
 #### `.zip()`
 
@@ -243,10 +251,6 @@ it.nth(42); // 41
 ```javascript
 [...Xiterable.xrange().zip('abcd')]   // [[0,"a"],[1,"b"],[2,"c"],[3,"d"]]
 ```
-
-#### `.reversed`
-
-returns an iterator that returns elements in reverse order.  `this` must be finite and random-accesible via `.nth()` or exception is thrown.
 
 ### Instance methods found in `Array.prototype`
 
@@ -258,7 +262,7 @@ The following methods in `Array.prototype` are supported as follows.   For any m
 |[copyWithin]   | ❌ | mutating |
 |[entries]      | ✔︎ |   |
 |[every]        | ✔︎ |   |
-|[fill]         | ❌ | mutating ; see [repeat](#xiterablerepeat) |
+|[fill]         | ❌ | mutating ; see [.filled](#filled) |
 |[filter]       | ✔︎ | see [filter](#filter) |
 |[find]         | ✔︎ |   |
 |[findIndex]    | ✔︎ |   |
