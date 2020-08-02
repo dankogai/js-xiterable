@@ -97,7 +97,7 @@ or your custom generator (with no argument)...
 
 ```javascript
 let it = new Xiterable(function *() {
-  for (let i = 0; true; i++) yield i++;
+  for (let i = 0; true; i++) yield i;
 });
 [...it.take(8)]; // [ 0, 1, 2, 3, 4, 5, 6, 7]
 [...it.take(8).reversed()]  // throws TypeError;
@@ -107,7 +107,7 @@ Generators are treated as an infinite iterable.  But you can override it by givi
 
 ```javascript
 let it = new Xiterable(function *() {
-    for (let i = 0; true; i++) yield i++;
+  for (let i = 0; true; i++) yield i;
 }, Number.POSIVE_INFINITY, n => n);
 it.nth(42); // 42
 it.take(42).reversed().nth(0) // 41
