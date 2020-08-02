@@ -83,6 +83,21 @@ undefined
 
 ## Description
 
+This module makes any given iterables behave like an array with all functional methods like `.map()`, `.filter()`, `.reduce()` and so on.  But for methods that `Array.prototype` returns an instance of `Array`, an instace of `Xiterable` is returned.  An `Xiterable` instance are:
+
+* like an instance of `Array` that has `.map()`, `.filter()`, `.reduce()`…
+
+* unlike an instance of `Array` that demands the storage for elements.  Elements are generated on demand.
+
+```javascript
+ [...Array(1e9).keys()].slice(0,10) // gets stuck with a billion elements
+ [...xrange(1e9).slice(0,10)]       // same expected result instantly.
+```
+
+* All elements are lazily generated.  They are not generated until needed.
+
+* That is why [.filter](#filter) marks the result infinite, even though it is finite.  You cannot estimate the number of elements until you apply the predicate function.
+
 ### constructor
 
 from any built-in iterables...
@@ -126,7 +141,7 @@ $x('01234567').zip('abcdefgh').map(v=>v.join('')).toArray(); /* [
 
 #### `.toArray()`
 
-Returns `[...this]` unless `this` is infinite, in which case throws `RangeError`.
+Returns `[...this]` unless `this` is infinite, in which case throws `RangeError`.  It is longer than `[...this]` but slightly safer.
 
 #### `.nth()`
 
@@ -359,17 +374,17 @@ The following methods in `Array.prototype` are supported as follows.   For any m
 [unshift]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/unshift
 [values]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/values
 
-### static methods
+### Static methods
 
 They are also exported so you can:
 
 ```javascript
-import {repeat,xrange,zip,zipWith} from 'xiterable.js'
+import {repeat,xrange,zip,zipWith} from 'js-xiterable'
 ```
 Examples below assumes
 
 ```javascript
-import {Xiterable} from 'xiterable.js'.
+import {Xiterable} from 'js-xiterable'.
 ```
 
 Examples below assumes
