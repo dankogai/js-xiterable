@@ -176,7 +176,6 @@ it.nth(403291461126605635583999999n) === it.nth(-1);  // true
 
 The (maximum) number of elements in the iterable.  For infinite (or indefinite iterables like the result of `.filter()`) `Number.POSITIVE_INFINITY` is set. 
 
-`
 ```javascript
 xrange().length;                          // Number.POSITIVE_INFINITY
 xrange().take(42).length                  // 42
@@ -232,11 +231,30 @@ it.length;      // Number.POSITIVE_INFINITY
 
 #### `.take()`
 
-`.take(n)` returns an iterator that takes first `n` elements of `this`.
+`.take(n)` returns an iterable with the first `n` elements from `this`.
+If `n　<= this.length` it is a no-op.
+
+```javascript
+[...xrange().take(8)];          // [0, 1, 2, 3, 4, 5, 6, 7]
+[...xrange().take(4).take(8)];  // [0, 1, 2, 3]
+```
 
 #### `.drop()`
 
-`.drop(n)` returns an iterator that drops first `n` elements of `this`.
+`.drop(n)`returns an iterable without the first `n` elements from `this`.
+If `n　<= this.length` an empty iterable is returned.
+
+```javascript
+[...xrange(8).drop(4)]; // [4, 5, 6, 7]
+[...xrange(4).drop(8)]; // []
+```
+
+Note the infinite iterable remains infinite even after you `.drop(n)`
+
+```javascript
+xrange().drop(8).length;        // Number.POSITIVE_INFINITY
+[...xrange().drop(8).take(4)];  // [ 8, 9, 10, 11 ]
+```
 
 #### `.takeWhile()`
 
@@ -256,6 +274,11 @@ let fn = v=>!new Set('aeiou').has(v);
 #### `.reversed()`
 
 `.reversed()` returns an iterator that returns elements in reverse order.  `this` must be finite and random-accesible via `.nth()` or exception is thrown.
+
+```javascript
+[...xrange().take(4).reversed()]; // [3, 2, 1, 0]
+[...xrange().reversed()];         // throws RangeError
+```
 
 #### `.zip()`
 
