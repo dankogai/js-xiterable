@@ -126,7 +126,7 @@ $x('01234567').zip('abcdefgh').map(v=>v.join('')).toArray(); /* [
 
 #### `.toArray()`
 
-Returns `[...this]`.
+Returns `[...this]` unless `this` is infinite, in which case throws `RangeError`.
 
 #### `.nth()`
 

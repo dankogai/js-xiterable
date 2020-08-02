@@ -137,11 +137,11 @@ export declare class Xiterable<T> {
      */
     slice(start?: anyint, end?: anyint): Xiterable<T>;
     /**
-     * returns an iterable with first `n` elements from `this`.
+     * returns an iterable with the first `n` elements from `this`.
      */
     take(n: anyint): Xiterable<T>;
     /**
-     * returns an iterable without first `n` elements from `this`
+     * returns an iterable without the first `n` elements from `this`
      */
     drop(n: anyint): Xiterable<T>;
     /**

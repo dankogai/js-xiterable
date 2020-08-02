@@ -105,6 +105,8 @@ export class Xiterable {
         return this.seed[Symbol.iterator]();
     }
     toArray() {
+        if (this.isEndless)
+            throw RangeError('an infinite iterable cannot be spread!');
         return [...this];
     }
     /// MARK: methods found in Array.prototype ////
@@ -373,7 +375,7 @@ export class Xiterable {
     }
     //// MARK: functional methods not defined above
     /**
-     * returns an iterable with first `n` elements from `this`.
+     * returns an iterable with the first `n` elements from `this`.
      */
     take(n) {
         const ctor = this.length.constructor;
@@ -397,7 +399,7 @@ export class Xiterable {
         return new Xiterable(gen, len, nth);
     }
     /**
-     * returns an iterable without first `n` elements from `this`
+     * returns an iterable without the first `n` elements from `this`
      */
     drop(n) {
         const ctor = this.length.constructor;
