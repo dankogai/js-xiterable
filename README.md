@@ -10,8 +10,7 @@ Suppose we have a generator like this.
 
 ```javascript
 function* count(n) {
-    let i = 0;
-    while (i < n) yield i++;
+    for (let i = 0; i < n; i++) yield i++;
 };
 ```
 
