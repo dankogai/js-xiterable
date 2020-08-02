@@ -25,7 +25,9 @@
     "url": "git+https://github.com/dankogai/js-xiterable.git"
   },
   "keywords": [
+    "iterable",
     "iterator",
+    "generator",
     "es2015",
     "es6"
   ],
