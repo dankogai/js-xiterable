@@ -168,8 +168,7 @@ export class Xiterable<T> {
         const gen = function* () {
             let i = ctor(0);
             for (const v of iter) {
-                if (!fn.call(thisArg, v, i++, iter)) continue;
-                yield v;
+                if (fn.call(thisArg, v, i++, iter)) yield v;
             }
         };
         return new Xiterable(gen);
