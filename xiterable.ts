@@ -202,14 +202,14 @@ export class Xiterable<T> {
     * `indexOf` as `Array.prototype.indexOf`
     */
     indexOf(valueToFind, fromIndex: anyint = 0): anyint {
-        const len = this.length;
-        const ctor = len.constructor;
+        const ctor = this.length.constructor;
+        const len = ctor(this.length);
         fromIndex = ctor(fromIndex);
         if (fromIndex < 0) {
             if (this.isEndless) {
                 throw new RangeError('an infinite iterable cannot go backwards');
             }
-            fromIndex = ctor(len) + ctor(fromIndex);
+            fromIndex += len;
             if (fromIndex < 0) fromIndex = 0;
         }
         return this.entries().findIndex(
@@ -223,19 +223,17 @@ export class Xiterable<T> {
         if (this.isEndless) {
             throw new RangeError('an infinite iterable cannot go backwards');
         }
-        const len = this.length;
-        const ctor = len.constructor;
-        fromIndex = arguments.length == 1
-            ? ctor(len) - ctor(1) : ctor(fromIndex);
+        const ctor = this.length.constructor;
+        const len = ctor(this.length);
+        fromIndex = arguments.length == 1 ? len - ctor(1) : ctor(fromIndex);
         if (fromIndex < 0) {
-            fromIndex = ctor(len) + ctor(fromIndex);
+            fromIndex += len;
             if (fromIndex < 0) fromIndex = 0;
         }
-        const offset = ctor(len) - ctor(1)
-        fromIndex = offset - ctor(fromIndex);
-        const idx = this.reversed().indexOf(valueToFind, ctor(fromIndex));
+        fromIndex = len - ctor(1) - ctor(fromIndex);
+        const idx = this.reversed().indexOf(valueToFind, fromIndex);
         if (idx === -1) return -1;
-        return ctor(len) - ctor(idx) - ctor(1);
+        return len - ctor(idx) - ctor(1);
     }
     /**
      * `includes` as `Array.prototype.includes`
@@ -486,21 +484,19 @@ export class Xiterable<T> {
         if (typeof b === 'undefined') [b, e, d] = [0, Number.POSITIVE_INFINITY, 1]
         if (typeof e === 'undefined') [b, e, d] = [0, b, 1]
         if (typeof d === 'undefined') [b, e, d] = [b, e, 1]
+        const ctor = b.constructor;
         const len = typeof b === 'bigint'
             ? (BigInt(e) - BigInt(b)) / BigInt(d)
             : Math.floor((Number(e) - Number(b)) / Number(d));
-        const ctor = b.constructor;
         const nth = (n: anyint) => {
-            if (n < 0) n = ctor(len) + ctor(n);
-            if (len <= n) return undefined;
-            return ctor(b) + ctor(d) * ctor(n);
+            n = ctor(n);
+            if (n < 0) n += ctor(len);
+            return n < 0 ? undefined
+                : len <= n ? undefined
+                    : ctor(b) + ctor(d) * ctor(n);
         }
         const gen = function* () {
-            let i = b;
-            while (i < e) {
-                yield i;
-                i += ctor(d);
-            }
+            for(let i = b; i < e; i += ctor(d)) yield i;
         };
         return new Xiterable(gen, len, nth);
     }
@@ -509,13 +505,12 @@ export class Xiterable<T> {
     static repeat(value, times = Number.POSITIVE_INFINITY) {
         const nth = (n) => n < 0 ? undefined : value;
         const gen = function* () {
-            let i = 0;
-            while (i++ < times) yield value;
+            for (let i = 0; i < times; i++) yield value;
         }
         return new Xiterable(gen, times, nth);
     }
 };
-export const xiterable = (...args) => Xiterable.of(...args);
+export const xiterable = Xiterable.of.bind(Xiterable);
 export const zip = Xiterable.zip.bind(Xiterable);
 export const zipWith = Xiterable.zipWith.bind(Xiterable);
 export const xrange = Xiterable.xrange.bind(Xiterable);
