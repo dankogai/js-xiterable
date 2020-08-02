@@ -1,11 +1,11 @@
 /**
  * xiterable.ts
  *
- * @version: 0.1.3
+ * @version: 0.1.4
  * @author: dankogai
  *
 */
-export const version = '0.1.3';
+export const version = '0.1.4';
 // MARK: Utility
 /**
  * `true` if `obj` is iterable.  `false` otherwise.
