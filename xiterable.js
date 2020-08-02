@@ -112,10 +112,17 @@ export class Xiterable {
      * `map` as `Array.prototype.map`
     */
     map(fn, thisArg) {
-        const len = this.length;
-        const ctor = len.constructor;
+        const ctor = this.length.constructor;
+        const len = ctor(this.length);
         const iter = this.seed;
-        const nth = (n) => fn.call(thisArg, this.nth(n), n, this.seed);
+        const nth = (n) => {
+            n = ctor(n);
+            if (n < 0)
+                n += len;
+            return n < 0 ? undefined
+                : len <= n ? undefined
+                    : fn.call(thisArg, this.nth(n), n, this.seed);
+        };
         const gen = function* () {
             let i = ctor(0);
             for (const v of iter) {
