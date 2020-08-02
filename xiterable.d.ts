@@ -137,11 +137,17 @@ export declare class Xiterable<T> {
      */
     slice(start?: anyint, end?: anyint): Xiterable<T>;
     /**
+     * returns an iterable with first `n` elements from `this`.
      */
     take(n: anyint): Xiterable<T>;
     /**
+     * returns an iterable without first `n` elements from `this`
      */
     drop(n: anyint): Xiterable<T>;
+    /**
+     * returns an iterable with which iterates `this` till `fn` is no longer `true`.
+     */
+    takeWhile(fn: predicate<T>, thisArg?: any): Xiterable<T>;
     /**
      * returns an iterable with all elements replaced with `value`
      */

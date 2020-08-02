@@ -373,6 +373,7 @@ export class Xiterable {
     }
     //// MARK: functional methods not defined above
     /**
+     * returns an iterable with first `n` elements from `this`.
      */
     take(n) {
         const ctor = this.length.constructor;
@@ -396,6 +397,7 @@ export class Xiterable {
         return new Xiterable(gen, len, nth);
     }
     /**
+     * returns an iterable without first `n` elements from `this`
      */
     drop(n) {
         const ctor = this.length.constructor;
@@ -417,6 +419,22 @@ export class Xiterable {
             }
         };
         return new Xiterable(gen, len, nth);
+    }
+    /**
+     * returns an iterable with which iterates `this` till `fn` is no longer `true`.
+     */
+    takeWhile(fn, thisArg) {
+        const iter = this.seed;
+        const ctor = this.length.constructor;
+        const gen = function* () {
+            let i = ctor(0);
+            for (const v of iter) {
+                if (!fn.call(thisArg, v, i++, iter))
+                    break;
+                yield v;
+            }
+        };
+        return new Xiterable(gen);
     }
     /**
      * returns an iterable with all elements replaced with `value`

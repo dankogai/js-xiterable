@@ -176,12 +176,11 @@ it.nth(403291461126605635583999999n) === it.nth(-1);  // true
 
 The (maximum) number of elements in the iterable.  For infinite (or indefinite iterables like the result of `.filter()`) `Number.POSITIVE_INFINITY` is set. 
 
+`
 ```javascript
-it = xiterable('javascript');
-it.length;  // 10
-it = it.filter(v=>!new Set('aeiou').has(v));
-it.length;      // Number.POSITIVE_INFINITY
-[...it].length; // 7
+xrange().length;                          // Number.POSITIVE_INFINITY
+xrange().take(42).length                  // 42
+xrange().take(42).filter(v=>v%2).length;  // Number.POSITIVE_INFINITY
 ```
 
 The number can be `BigInt` for very large iterable.
@@ -194,14 +193,9 @@ it.lenth; // 403291461126605635584000000n
 You can tell if the iterable is infinite or indefinite via `.isEndless`.
 
 ```javascript
-it = xiterable('javascript');
-it.isEndless; // false
-it = it.filter(v=>!new Set('aeiou').has(v));
-it.isEndless; // true
-it = xiterable(new $C.Permutation('abcdefghijklmnopqrstuvwxyz'));
-it.isEndless; // false
-it = xiterable(function*(){ for(;;) yield 42 }); 
-it.isEndless;  // true
+xrange().isEndless;                         // true
+xrange().take(42).isEndless                 // false
+xrange().take(42).filter(v=>v%2).isEndless; // true
 ```
 
 #### `.map()`
@@ -226,7 +220,15 @@ it.nth(42); // 41
 
 * `.filter` of this module works with infinite iterables. 
 
-* unlike [.map()](#map) the resulting iterable is always marked infinite  because there is no way to know its length lazily, that is, prior to iteration.  See [.length](#length) for example
+* unlike [.map()](#map) the resulting iterable is always marked infinite  because there is no way to know its length lazily, that is, prior to iteration.  See [.length](#length) for more examples.
+
+```javascript
+it = xiterable('javascript');
+it.length;  // 10
+it = it.filter(v=>!new Set('aeiou').has(v));
+it.length;      // Number.POSITIVE_INFINITY
+[...it].length; // 7
+```
 
 #### `.take()`
 
@@ -235,6 +237,17 @@ it.nth(42); // 41
 #### `.drop()`
 
 `.drop(n)` returns an iterator that drops first `n` elements of `this`.
+
+#### `.takeWhile()`
+
+`.takeWhile(fn, thisArg?)` returns an iterable with which iterates till `fn` is no longer `true`.  Similar to [.filter](#filter) but unlinke `.filter()` the iterator terminates at the first element where `fn()` returns false.
+
+```javascript
+let it = xiterable('javascript');
+let fn = v=>!new Set('aeiou').has(v);
+[...it.filter(fn)];     // ['j', 'v', 's', 'c', 'r', 'p', 't']
+[...it.takeWhile(fn)];  // ['j']
+```
 
 #### `.filled()`
 
