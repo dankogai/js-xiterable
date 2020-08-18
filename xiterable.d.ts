@@ -75,6 +75,11 @@ export declare class Xiterable<T> {
     */
     values(): Xiterable<any>;
     /**
+    * like `filter` but instead of removing elements
+    * that do not meet the predicate, it replaces them with `undefined`.
+    */
+    mapFilter(fn: predicate<T>, thisArg?: any): Xiterable<T>;
+    /**
      * `filter` as `Array.prototype.filter`
      */
     filter(fn: predicate<T>, thisArg?: any): Xiterable<T>;

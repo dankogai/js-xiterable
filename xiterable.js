@@ -161,6 +161,14 @@ export class Xiterable {
         return this.map((v, i) => v);
     }
     /**
+    * like `filter` but instead of removing elements
+    * that do not meet the predicate, it replaces them with `undefined`.
+    */
+    mapFilter(fn, thisArg) {
+        return this.map((v, i) => fn.call(thisArg, v, i, this.seed)
+            ? v : undefined);
+    }
+    /**
      * `filter` as `Array.prototype.filter`
      */
     filter(fn, thisArg) {
