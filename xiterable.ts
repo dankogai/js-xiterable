@@ -142,7 +142,7 @@ export class Xiterable<T> {
      * `forEach` as `Array.prototype.map`
     */
     forEach<U>(fn: transform<T, U>, thisArg?) {
-        let i = 0;
+        let i = this.length.constructor(0);
         for (const v of this.seed) {
             fn.call(thisArg, v, i++, this.seed);
         }
