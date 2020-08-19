@@ -113,8 +113,6 @@ export class Xiterable<T> {
         return this.seed[Symbol.iterator]();
     }
     toArray() {
-        if (this.isEndless)
-            throw RangeError('an infinite iterable cannot be spread!');
         return [...this];
     }
     /// MARK: methods found in Array.prototype ////

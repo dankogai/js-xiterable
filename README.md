@@ -131,8 +131,8 @@ it.take(42).reversed().nth(0) // 41
 A factory function is also exported as `xiterable`.
 
 ```javascript
-import {xiterable as $x} from 'js-xiterable';
-$x('01234567').zip('abcdefgh').map(v=>v.join('')).toArray(); /* [
+import {xiterable as $X} from 'js-xiterable';
+$X('01234567').zip('abcdefgh').map(v=>v.join('')).toArray(); /* [
   '0a', '1b', '2c', '3d', '4e', '5f', '6g', '7h'
 ] */
 ```
@@ -242,7 +242,25 @@ it.length;  // 10
 it = it.filter(v=>!new Set('aeiou').has(v));
 it.length;      // Number.POSITIVE_INFINITY
 [...it].length; // 7
+[...it] // [ 'j', 'v', 's', 'c', 'r', 'p', 't' ]
 ```
+
+#### `.mapFilter()`
+
+`.mapFilter(fn, thisArg?)` works just like `.filter()` but instead of dropping elements, it is replaced with `undefined`.  That way the number of elements remains unchanged so you can use `.nth()` and `.reversed()`.
+
+```javascript
+it = xiterable('javascript');
+it.length;  // 10
+it = it.mapFilter(v=>!new Set('aeiou').has(v));
+it.length;      // 10
+[...it].length; // 10
+[...it];  /* [
+  'j', undefined, 'v', undefined, 
+  's', 'c', 'r', undefined, 'p', 't'
+] */
+```
+
 
 #### `.take()`
 
