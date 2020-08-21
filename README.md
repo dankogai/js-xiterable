@@ -452,3 +452,31 @@ for (const i of Xiterable.repeat('spam')) { // infinite stream of 'spam'
 ```javascript
 [...Xiterable.repeat('spam', 4)] // ['spam', 'spam', 'spam', 'spam']
 ```
+
+## See Also
+
+### [tc39/proposal-iterator-helpers]
+
+[tc39/proposal-iterator-helpers]: https://github.com/tc39/proposal-iterator-helpers
+
+Looks like this is what standard iterators were supposed to be.
+
+#### Pro
+
+* It will be the part of the standard if it passes
+* lazy like this module
+* async version also available.
+
+### Cons
+
+* sequencial access only.
+  * no `.nth()`
+  * no `.reversed()`
+
+
+
+
+
+
+
+
