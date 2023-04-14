@@ -10,7 +10,7 @@ $(JS): $(PJ) $(TS)
 	tsc -d --target es6 $(TS)
 
 test: $(PJ) $(JS)
-	mocha --require esm
+	mocha
 
 clean:
 	-rm $(DTS) $(MJS) $(JS)
