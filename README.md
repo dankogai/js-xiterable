@@ -51,7 +51,7 @@ import {
 remotely
 
 ```javascript
-import {Xiterable} from 'https://cdn.jsdelivr.net/npm/js-xiterable@0.2.0/xiterable.min.js';
+import {Xiterable} from 'https://cdn.jsdelivr.net/npm/js-xiterable@0.2.1/xiterable.min.js';
 ```
 
 ### commonjs (node.js)
