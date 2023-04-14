@@ -36,8 +36,5 @@
   "bugs": {
     "url": "https://github.com/dankogai/js-xiterable/issues"
   },
-  "homepage": "https://github.com/dankogai/js-xiterable#readme",
-  "dependencies": {
-    "core-js": "^3.6.5"
-  }
+  "homepage": "https://github.com/dankogai/js-xiterable#readme"
 }
