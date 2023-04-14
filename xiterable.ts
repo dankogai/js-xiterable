@@ -246,7 +246,7 @@ export class Xiterable<T> {
     /**
      * `includes` as `Array.prototype.includes`
      */
-    includes(valueToFind: T, fromIndex: anyint = 0) {
+    includes(valueToFind: T, fromIndex: anyint = 0): boolean {
         return this.indexOf(valueToFind, fromIndex) > -1;
     }
     /**
@@ -299,7 +299,7 @@ export class Xiterable<T> {
     * @param {String} separator
     * @returns {String}
     */
-    join(separator = ','): string {
+    join(separator: string = ','): string | undefined {
         return this.reduce((a, v) => String(a) + separator + String(v));
     }
     /**
@@ -473,7 +473,7 @@ export class Xiterable<T> {
         const nth = (n: anyint) => {
             if (n < 0) n = ctor(n) + ctor(len);
             if (n < 0 || len <= n) return undefined;
-            let result = [];
+            let result: Iterable<any>[] = [];
             for (const x of xargs) {
                 result.push(x.nth(n))
             }
@@ -482,7 +482,7 @@ export class Xiterable<T> {
         const gen = function* () {
             const them = xargs.map(v => v[Symbol.iterator]());
             while (true) {
-                let elem = []
+                let elem: Iterable<any>[] = []
                 for (const it of them) {
                     const nx = it.next();
                     if (nx.done) return;
