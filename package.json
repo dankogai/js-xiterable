@@ -1,6 +1,6 @@
 {
   "name": "js-xiterable",
-  "version": "0.1.8",
+  "version": "0.2.0",
   "description": "Make ES6 Iterators Functional Again",
   "type": "module",
   "main": "xiterable.js",
