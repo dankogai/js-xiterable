@@ -233,7 +233,7 @@ export class Xiterable<T> {
         }
         const ctor = this.length.constructor;
         const len = ctor(this.length);
-        fromIndex = arguments.length == 1 ? len - ctor(1) : ctor(fromIndex);
+        if (!fromIndex) fromIndex = len - ctor(1);
         if (fromIndex < 0) {
             fromIndex += len;
             if (fromIndex < 0) fromIndex = 0;
