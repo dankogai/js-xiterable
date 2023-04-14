@@ -120,14 +120,14 @@ let it = new Xiterable(function *() {
 [...it.take(8).reversed()]  // throws TypeError;
 ```
 
-Generators are treated as an infinite iterable.  But you can override it by giving its length for the 2nd argument and the implentation of `nth` for the 3rd argument.  see [.nth()](#nth) and [.map()](#map) for more example.
+Generators are treated as an infinite iterable.  But you can override it by giving its length for the 2nd argument and the implentation of `nth` for the 3rd argument.  see [.at()](#at) and [.map()](#map) for more example.
 
 ```javascript
 let it = new Xiterable(function *() {
   for (let i = 0; true; i++) yield i;
 }, Number.POSIVE_INFINITY, n => n);
-it.nth(42); // 42
-it.take(42).reversed().nth(0) // 41
+it.at(42); // 42
+it.take(42).reversed().at(0) // 41
 ```
 
 A factory function is also exported as `xiterable`.
@@ -143,22 +143,24 @@ $X('01234567').zip('abcdefgh').map(v=>v.join('')).toArray(); /* [
 
 #### `.toArray()`
 
-Returns `[...this]` unless `this` is infinite, in which case throws `RangeError`.  It is longer than `[...this]` but slightly safer.
+Returns `[...this]` unless `this` is infinite, in which case throws `RangeError`.  It takes longer to spell than `[...this]` but slightly safer.
 
-#### `.nth()`
+#### `.at()`
 
-`.nth(n)` returns the nth element of `this` if the original itertor has `.nth` or Array-like (can access nth element via `[n]`.  In which case `nth()` is auto-generated).
+`.at(n)` returns the nth element of `this` if the original itertor has `.at` or `.nth` or Array-like (can access nth element via `[n]`.  In which case `at()` is auto-generated).
 
-Unlike `[n]`, `.nth(n)` accepts `BigInt` and negatives.
+The function was previously named `nth()`, which is still an alias of `at()` for compatibility reason.
+
+Unlike `[n]`, `.at(n)` accepts `BigInt` and negatives.
 
 ```javascript
 let it = xiterable('javascript');
-it.nth(0);    // 'j'
-it.nth(0n);   // 'j'
-it.nth(9);    // 't'
-it.nth(-1);   // 't'
-it.nth(-1n);  // 't'
-it.nth(-10);  // 'j'
+it.at(0);    // 'j'
+it.at(0n);   // 'j'
+it.at(9);    // 't'
+it.at(-1);   // 't'
+it.at(-1n);  // 't'
+it.at(-10);  // 'j'
 ```
 
 It raises exceptions on infinite (and indefinite) iterables
@@ -166,14 +168,14 @@ It raises exceptions on infinite (and indefinite) iterables
 ```javascript
 it = xiterable(function*(){ for(;;) yield 42 }); // infinite
 [...it.take(42)]; // Array(42).fill(42)
-it.nth(0);  // throws TypeError;
+it.at(0);  // throws TypeError;
 ```
 
 ```javascript
 it = xiterable('javascript');
 it = it.filter(v=>!new Set('aeiou').has(v)); // indefinite
 [...it];  // ['j', 'v', 's', 'c', 'r', 'p', 't']
-it.nth(0); // throws TypeError;
+it.at(0); // throws TypeError;
 ```
 
 [js-combinatorics]: https://github.com/dankogai/js-combinatorics
@@ -184,9 +186,9 @@ it.nth(0); // throws TypeError;
 import * as $C from 'js-combinatorics';
 let it = xiterable(new $C.Permutation('abcdefghijklmnopqrstuvwxyz'));
 it = it.map(v=>v.join(''));
-it.nth(0);    // 'abcdefghijklmnopqrstuvwxyz'
-it.nth(-1);   // 'zyxwvutsrqponmlkjihgfedcba'
-it.nth(403291461126605635583999999n) === it.nth(-1);  // true
+it.at(0);    // 'abcdefghijklmnopqrstuvwxyz'
+it.at(-1);   // 'zyxwvutsrqponmlkjihgfedcba'
+it.at(403291461126605635583999999n) === it.at(-1);  // true
 ```
 
 #### `.length`
@@ -203,7 +205,7 @@ The number can be `BigInt` for very large iterable.
 
 ```javascript
 it = xiterable(new $C.Permutation('abcdefghijklmnopqrstuvwxyz'));
-it.lenth; // 403291461126605635584000000n
+it.length; // 403291461126605635584000000n
 ```
 
 You can tell if the iterable is infinite or indefinite via `.isEndless`.
@@ -225,9 +227,9 @@ xrange().take(42).filter(v=>v%2).isEndless; // true
 ```javascript
 it = xiterable(function*(){ let i = 0; for(;;) yield i++ });
 [...it.map(v=>v*v).take(8)] // [0,  1,  4,  9, 16, 25, 36, 49]
-it.nth(42); // throws TypeError
+it.at(42); // throws TypeError
 it = xiterable(it.seed, it.length, n=>n); //  installs nth
-it.nth(42); // 41
+it.at(42); // 41
 ```
 
 #### `.filter()`
@@ -249,7 +251,7 @@ it.length;      // Number.POSITIVE_INFINITY
 
 #### `.mapFilter()`
 
-`.mapFilter(fn, thisArg?)` works just like `.filter()` but instead of dropping elements, it is replaced with `undefined`.  That way the number of elements remains unchanged so you can use `.nth()` and `.reversed()`.
+`.mapFilter(fn, thisArg?)` works just like `.filter()` but instead of dropping elements, it is replaced with `undefined`.  That way the number of elements remains unchanged so you can use `.at()` and `.reversed()`.
 
 ```javascript
 it = xiterable('javascript');
@@ -308,7 +310,7 @@ let fn = v=>!new Set('aeiou').has(v);
 
 #### `.reversed()`
 
-`.reversed()` returns an iterator that returns elements in reverse order.  `this` must be finite and random-accesible via `.nth()` or exception is thrown.
+`.reversed()` returns an iterator that returns elements in reverse order.  `this` must be finite and random-accesible via `.at()` or exception is thrown.
 
 ```javascript
 [...xrange().take(4).reversed()]; // [3, 2, 1, 0]
@@ -472,7 +474,7 @@ Looks like this is what standard iterators were supposed to be.
 ### Cons
 
 * sequencial access only.
-  * no `.nth()`
+  * no `.at()`
   * no `.reversed()`
 
 

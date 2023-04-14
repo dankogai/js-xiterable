@@ -36,7 +36,7 @@ function min(...args: anyint[]) {
     }
     return result;
 }
-const nthError = (n: anyint) => {
+const atError = (n: anyint) => {
     throw TypeError('I do not know how to random access!');
 }
 /**
@@ -45,7 +45,7 @@ const nthError = (n: anyint) => {
 export class Xiterable<T> {
     seed: Iterable<T>;
     length: anyint;
-    nth: (anyint) => T;
+    at: (anyint) => T;
     static get version() { return version }
     static isIterable(obj) { return isIterable(obj) }
     /**
@@ -54,7 +54,7 @@ export class Xiterable<T> {
     constructor(
         seed: Iterable<T> | anyfunction,
         length: anyint = Number.POSITIVE_INFINITY,
-        nth?: subscript
+        at?: subscript
     ) {
         if (seed instanceof Xiterable) {
             return seed;
@@ -65,18 +65,18 @@ export class Xiterable<T> {
             }
             // treat obj as a generator
             seed = { [Symbol.iterator]: seed };
-        } else if (!nth) {
-            if (typeof seed['nth'] === 'function') {
-                nth = seed['nth'].bind(seed);
+        } else if (!at) {
+            if (typeof seed['at'] === 'function') {
+                at = seed['at'].bind(seed);
             } else if (isAnyInt(seed['length'])) {
                 const len = seed['length'];
                 const ctor = len.constructor;
-                nth = (n: anyint) => seed[ctor(n < 0 ? len : 0) + ctor(n)];
+                at = (n: anyint) => seed[ctor(n < 0 ? len : 0) + ctor(n)];
             }
         }
         if (isAnyInt(seed['length'])) length = seed['length'];
-        if (!nth) nth = nthError;
-        Object.assign(this, { seed: seed, length: length, nth: nth });
+        if (!at) at = atError;
+        Object.assign(this, { seed: seed, length: length, at: at, nth: at });
         Object.freeze(this);
     }
     /*
@@ -123,12 +123,12 @@ export class Xiterable<T> {
         const ctor = this.length.constructor;
         const len = ctor(this.length);
         const iter = this.seed;
-        const nth = (n: anyint) => {
+        const at = (n: anyint) => {
             n = ctor(n);
             if (n < 0) n += len;
             return n < 0 ? undefined
                 : len <= n ? undefined
-                    : fn.call(thisArg, this.nth(n), n, this.seed);
+                    : fn.call(thisArg, this.at(n), n, this.seed);
         }
         const gen = function* () {
             let i = ctor(0);
@@ -136,7 +136,7 @@ export class Xiterable<T> {
                 yield fn.call(thisArg, v, i++, iter);
             }
         };
-        return new Xiterable(gen, len, nth);
+        return new Xiterable(gen, len, at);
     }
     /**
      * `forEach` as `Array.prototype.map`
@@ -355,9 +355,9 @@ export class Xiterable<T> {
             ? ctor(this.length) - ctor(start)
             : ctor(end) - ctor(start);
         if (len < 0) len = ctor(0);
-        const nth = (i) => {
+        const at = (i) => {
             if (i < 0) i += len;
-            return 0 <= i && i < len ? this.nth(start + i) : undefined;
+            return 0 <= i && i < len ? this.at(start + i) : undefined;
         }
         const iter = this.seed;
         const gen = function* () {
@@ -369,7 +369,7 @@ export class Xiterable<T> {
                 yield v;
             }
         };
-        return new Xiterable(gen, len, nth);
+        return new Xiterable(gen, len, at);
     }
     //// MARK: functional methods not defined above
     /**
@@ -379,9 +379,9 @@ export class Xiterable<T> {
         const ctor = this.length.constructor;
         let len = ctor(n);
         if (ctor(this.length) < len) len = ctor(this.length);
-        const nth = (i) => {
+        const at = (i) => {
             if (i < 0) i += len;
-            return 0 <= i && i < len ? this.nth(i) : undefined;
+            return 0 <= i && i < len ? this.at(i) : undefined;
         };
         const iter = this.seed;
         const gen = function* () {
@@ -391,7 +391,7 @@ export class Xiterable<T> {
                 yield v;
             }
         };
-        return new Xiterable(gen, len, nth);
+        return new Xiterable(gen, len, at);
     }
     /**
      * returns an iterable without the first `n` elements from `this`
@@ -400,9 +400,9 @@ export class Xiterable<T> {
         const ctor = this.length.constructor;
         let len = ctor(this.length) - ctor(n);
         if (len < 0) len = ctor(0);
-        const nth = (i) => {
+        const at = (i) => {
             if (i < 0) i += len;
-            return 0 <= i && i < len ? this.nth(n + i) : undefined;
+            return 0 <= i && i < len ? this.at(n + i) : undefined;
         }
         const iter = this.seed;
         const gen = function* () {
@@ -412,7 +412,7 @@ export class Xiterable<T> {
                 yield v;
             }
         }
-        return new Xiterable(gen, len, nth);
+        return new Xiterable(gen, len, at);
     }
     /**
      * returns an iterable with which iterates `this` till `fn` is no longer `true`.
@@ -439,22 +439,22 @@ export class Xiterable<T> {
      * reverse the iterable.  `this` must be finite and random accessible.
      */
     reversed(): Xiterable<T> {
-        if (this.isEndless || this.nth === nthError) {
+        if (this.isEndless || this.at === atError) {
             throw new RangeError('cannot reverse an infinite iterable');
         }
         let len = this.length;
         const ctor = len.constructor;
-        const nth = (n) => {
+        const at = (n) => {
             const i = ctor(n) + ctor(n < 0 ? len : 0);
             return 0 <= i && i < len
-                ? this.nth(ctor(len) - i - ctor(1)) : undefined;
+                ? this.at(ctor(len) - i - ctor(1)) : undefined;
         };
         const iter = this;
         const gen = function* () {
             let i = len;
-            while (0 < i) yield iter.nth(--i);
+            while (0 < i) yield iter.at(--i);
         };
-        return new Xiterable(gen, len, nth);
+        return new Xiterable(gen, len, at);
     }
     /**
      * @returns {Xiterable}
@@ -470,12 +470,12 @@ export class Xiterable<T> {
         const xargs = args.map(v => new Xiterable(v));
         const len = min(...xargs.map(v => v.length))
         const ctor = this.length.constructor;
-        const nth = (n: anyint) => {
+        const at = (n: anyint) => {
             if (n < 0) n = ctor(n) + ctor(len);
             if (n < 0 || len <= n) return undefined;
             let result: Iterable<any>[] = [];
             for (const x of xargs) {
-                result.push(x.nth(n))
+                result.push(x.at(n))
             }
             return result;
         };
@@ -491,7 +491,7 @@ export class Xiterable<T> {
                 yield elem;
             }
         };
-        return new Xiterable(gen, len, nth);
+        return new Xiterable(gen, len, at);
     }
     /**
      * @returns {Xiterable}
@@ -513,7 +513,7 @@ export class Xiterable<T> {
         const len = typeof b === 'bigint'
             ? (BigInt(e) - BigInt(b)) / BigInt(d)
             : Math.floor((Number(e) - Number(b)) / Number(d));
-        const nth = (n: anyint) => {
+        const at = (n: anyint) => {
             n = ctor(n);
             if (n < 0) n += ctor(len);
             return n < 0 ? undefined
@@ -523,16 +523,16 @@ export class Xiterable<T> {
         const gen = function* () {
             for (let i = b; i < e; i += ctor(d)) yield i;
         };
-        return new Xiterable(gen, len, nth);
+        return new Xiterable(gen, len, at);
     }
     /** 
      */
     static repeat(value, times = Number.POSITIVE_INFINITY) {
-        const nth = (n) => n < 0 ? undefined : value;
+        const at = (n) => n < 0 ? undefined : value;
         const gen = function* () {
             for (let i = 0; i < times; i++) yield value;
         }
-        return new Xiterable(gen, times, nth);
+        return new Xiterable(gen, times, at);
     }
 };
 export const xiterable = Xiterable.of.bind(Xiterable);
