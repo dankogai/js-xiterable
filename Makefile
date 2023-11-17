@@ -7,7 +7,7 @@ DTS=xiterable.d.ts
 all: $(JS)
 
 $(JS): $(PJ) $(TS)
-	tsc -d --target es6 $(TS)
+	tsc -d --module nodenext $(TS)
 
 test: $(PJ) $(JS)
 	mocha
