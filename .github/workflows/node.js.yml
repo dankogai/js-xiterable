@@ -4,6 +4,7 @@
 name: CI via GitHub Actions
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main ]
   pull_request:
@@ -14,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 16]
+        node-version: [20, 18, 16]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
