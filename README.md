@@ -471,30 +471,72 @@ for (const i of Xiterable.repeat('spam')) { // infinite stream of 'spam'
 [...Xiterable.repeat('spam', 4)] // ['spam', 'spam', 'spam', 'spam']
 ```
 
-## See Also
+## Comparison with built-in `Iterator` helpers
 
-### [tc39/proposal-iterator-helpers]
+When this module was first written, iterators in JavaScript had nothing but `.next()`.  You could `for…of` them and spread them into arrays, but `.map()`, `.filter()`, `.take()` and friends were nowhere to be found.  That was the whole reason this module exists.
 
-[tc39/proposal-iterator-helpers]: https://github.com/tc39/proposal-iterator-helpers
+Since then, [Iterator helpers] have landed in the language (ES2025) and are available in recent runtimes: Node.js 22+, Chrome 122+, Firefox 131+, Safari 18.4+ and Bun 1.1+.  `Iterator.prototype` now has `.map()`, `.filter()`, `.take()`, `.drop()`, `.flatMap()`, `.reduce()`, `.toArray()`, `.forEach()`, `.some()`, `.every()` and `.find()`, and `Iterator.from()` wraps any iterable or iterator-like object.
 
-Looks like this is what standard iterators were supposed to be.
+[Iterator helpers]: https://github.com/tc39/proposal-iterator-helpers
 
-#### Pro
+```javascript
+// no module needed on a modern runtime
+function* naturals() { for (let i = 0; true; i++) yield i; }
+naturals().map(v => v * v).filter(v => v % 2).take(3).toArray(); // [ 1, 9, 25 ]
+```
 
-* It will be the part of the standard if it passes
-* lazy like this module
-* async version also available.
+So do you still need this module?  If all you need is sequential, one-pass transforms on a modern runtime, no.  This module still offers a few things the built-ins do not.
 
-### Cons
+### Re-iterable vs. one-shot
 
-* sequencial access only.
-  * no `.at()`
-  * no `.reversed()`
+A built-in iterator is consumed as you go.  Once exhausted it stays exhausted, and so does anything derived from it.
 
+```javascript
+const it = [1, 2, 3].values().map(v => v * v);
+[...it]; // [ 1, 4, 9 ]
+[...it]; // []
+```
 
+An `Xiterable` wraps an *iterable*, not an iterator, so every iteration starts afresh.
 
+```javascript
+const xi = xiterable([1, 2, 3]).map(v => v * v);
+[...xi]; // [ 1, 4, 9 ]
+[...xi]; // [ 1, 4, 9 ]
+```
 
+### Random access and length
 
+Because it knows how long it is and how to compute the *n*-th element, an `Xiterable` supports `.length`, `.at()`, negative indexes in `.slice()` and `.reversed()`, all without materializing the elements.  Built-in iterators are sequential only.
 
+```javascript
+xrange(1e9).map(v => v * 2).at(-1);          // 1999999998, instantly
+[...xrange(1e9).slice(-3)];                  // [ 999999997, 999999998, 999999999 ]
+[...xrange(1e9).reversed().take(3)];         // [ 999999999, 999999998, 999999997 ]
+```
 
+### Method comparison
 
+| method | `Iterator.prototype` | `Xiterable.prototype` |
+|:-------|:----:|:----:|
+| `.map()`, `.filter()`, `.flatMap()` | ✔︎ | ✔︎ |
+| `.take()`, `.drop()` | ✔︎ | ✔︎ |
+| `.reduce()`, `.forEach()`, `.toArray()` | ✔︎ | ✔︎ |
+| `.some()`, `.every()`, `.find()` | ✔︎ | ✔︎ |
+| `Iterator.from()` | ✔︎ | `xiterable()`, `new Xiterable()` |
+| `.length`, `.at()` | ❌ | ✔︎ |
+| `.slice()` with negative indexes, `.reversed()` | ❌ | ✔︎ |
+| `.findIndex()`, `.indexOf()`, `.lastIndexOf()`, `.includes()` | ❌ | ✔︎ |
+| `.concat()`, `.flat()`, `.join()`, `.reduceRight()` | ❌ | ✔︎ |
+| `.entries()`, `.keys()`, `.values()` | ❌ | ✔︎ |
+| `.takeWhile()`, `.zip()` | ❌ | ✔︎ |
+| `xrange()`, `repeat()`, `zip()`, `zipWith()` | ❌ | ✔︎ |
+| works on any iterable without wrapping | ❌ (`Iterator.from()` first) | ✔︎ |
+| re-iterable | ❌ | ✔︎ |
+| async variant | [in progress][async-helpers] | ❌ |
+
+[async-helpers]: https://github.com/tc39/proposal-async-iterator-helpers
+
+### Mixing the two
+
+An `Xiterable` is itself an iterable, so `Iterator.from()` accepts it whenever you want to hand one to code that expects a built-in iterator.  Going the other way, any built-in iterator can be passed to `xiterable()`.  Just remember the one-shot nature of the source carries over: the resulting `Xiterable` is only good for one pass.
