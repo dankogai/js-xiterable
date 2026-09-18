@@ -1,6 +1,7 @@
-[![ES2015](https://img.shields.io/badge/JavaScript-ES2015-blue.svg)](http://www.ecma-international.org/ecma-262/6.0/)
+[![ES2020](https://img.shields.io/badge/JavaScript-ES2020-blue.svg)](https://tc39.es/ecma262/2020/)
 [![MIT LiCENSE](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![CI via GitHub Actions](https://github.com/dankogai/js-xiterable/actions/workflows/node.js.yml/badge.svg)](https://github.com/dankogai/js-xiterable/actions/workflows/node.js.yml)
+[![CI on node.js](https://github.com/dankogai/js-xiterable/actions/workflows/node.js.yml/badge.svg)](https://github.com/dankogai/js-xiterable/actions/workflows/node.js.yml)
+[![CI on bun](https://github.com/dankogai/js-xiterable/actions/workflows/bun.yml/badge.svg)](https://github.com/dankogai/js-xiterable/actions/workflows/bun.yml)
 
 # js-xiterable
 
@@ -48,39 +49,52 @@ import {
 } from './xiterable.js';
 ```
 
-remotely
+You don't even have to install if you `import` from CDNs.
 
 ```javascript
 import {Xiterable} from 'https://cdn.jsdelivr.net/npm/js-xiterable@0.2.2/xiterable.min.js';
 ```
 
-### commonjs (node.js)
+Or plain old `<script>` tags — the UMD version `umd/xiterable.js` makes `Xiterable` globally available.
 
-use [babel] or [esm].
+```html
+<script src="https://cdn.jsdelivr.net/npm/js-xiterable@0.2.2/umd/xiterable.min.js"></script>
+<script>
+  // now you can access Xiterable
+  const squares = [...Xiterable.xrange(4).map(v => v * v)];
+</script>
+```
 
-[babel]: https://babeljs.io
-[esm]: https://github.com/standard-things/esm
+### node.js REPL
 
 ```shell
-% node -r esm
-Welcome to Node.js v14.5.0.
+% node
+Welcome to Node.js v24.19.0.
 Type ".help" for more information.
-> import * as $X from 'js-xiterable'
+> const $X = await import('js-xiterable')
 undefined
 > $X
-[Module] {
-  Xiterable: [Function: Xiterable],
+[Module: null prototype] {
+  Xiterable: [class Xiterable],
+  isAnyInt: [Function: isAnyInt],
   isIterable: [Function: isIterable],
-  repeat: [Function: repeat],
-  version: '0.0.3',
-  xiterable: [Function: xiterable],
-  xrange: [Function: xrange],
-  zip: [Function: zip],
-  zipWith: [Function: zipWith]
+  repeat: [Function: bound repeat],
+  version: '0.2.2',
+  xiterable: [Function: bound of],
+  xrange: [Function: bound xrange],
+  zip: [Function: bound zip],
+  zipWith: [Function: bound zipWith]
 }
-> [...$X.xrange().take(10).filter(v=>v%2).map(v=>v*v)]
-[ 1, 9, 25, 49, 81 ]
-> 
+> [...$X.xrange(4).map(v => v * v)]
+[ 0, 1, 4, 9 ]
+```
+
+### commonjs (node.js)
+
+`require()` works too, via `commonjs/xiterable.js`.
+
+```javascript
+const { Xiterable, xrange } = require('js-xiterable');
 ```
 
 ## Description
