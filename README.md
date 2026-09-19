@@ -157,7 +157,7 @@ $X('01234567').zip('abcdefgh').map(v=>v.join('')).toArray(); /* [
 
 #### `.toArray()`
 
-Returns `[...this]` unless `this` is infinite, in which case throws `RangeError`.  It takes longer to spell than `[...this]` but slightly safer.
+Returns `[...this]` unless `this` is infinite, in which case throws `RangeError`.  It takes longer to spell than `[...this]` but slightly safer.  Note that methods like [.filter()](#filter) mark their result infinite because the length cannot be known in advance, so `.toArray()` throws on them too even when the source is finite.  Use `[...this]` when you know better.
 
 #### `.at()`
 
