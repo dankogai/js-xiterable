@@ -109,6 +109,8 @@ class Xiterable {
         return this.seed[Symbol.iterator]();
     }
     toArray() {
+        if (this.isEndless)
+            throw new RangeError('an infinite iterable cannot be converted to an array');
         return [...this];
     }
     /// MARK: methods found in Array.prototype ////

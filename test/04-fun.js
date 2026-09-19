@@ -20,3 +20,13 @@ describe('zip, zipWith', () => {
         === ${JSON.stringify(ar)}`, () =>
         $([...xi.take(4)]).to.deep.equal(ar))
 });
+describe('.toArray()', () => {
+    it('xrange(4).toArray() === [0,1,2,3]', () =>
+        $(xrange(4).toArray()).to.deep.equal([0, 1, 2, 3]));
+    it('xrange().toArray() throws RangeError', () =>
+        chai.assert.throws(() => xrange().toArray(), RangeError));
+    it('repeat(1).toArray() throws RangeError', () =>
+        chai.assert.throws(() => repeat(1).toArray(), RangeError));
+    it('xrange().take(4).toArray() === [0,1,2,3]', () =>
+        $(xrange().take(4).toArray()).to.deep.equal([0, 1, 2, 3]));
+});
