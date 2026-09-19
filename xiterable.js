@@ -7,7 +7,7 @@
  * @author: dankogai
  *
 */
-const version = '0.2.2';
+const version = '0.3.0';
 // MARK: Utility
 /**
  * `true` if `obj` is iterable.  `false` otherwise.

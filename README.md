@@ -52,13 +52,13 @@ import {
 You don't even have to install if you `import` from CDNs.
 
 ```javascript
-import {Xiterable} from 'https://cdn.jsdelivr.net/npm/js-xiterable@0.2.2/xiterable.min.js';
+import {Xiterable} from 'https://cdn.jsdelivr.net/npm/js-xiterable@0.3.0/xiterable.min.js';
 ```
 
 Or plain old `<script>` tags — the UMD version `umd/xiterable.js` makes `Xiterable` globally available.
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/js-xiterable@0.2.2/umd/xiterable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/js-xiterable@0.3.0/umd/xiterable.min.js"></script>
 <script>
   // now you can access Xiterable
   const squares = [...Xiterable.xrange(4).map(v => v * v)];
@@ -79,7 +79,7 @@ undefined
   isAnyInt: [Function: isAnyInt],
   isIterable: [Function: isIterable],
   repeat: [Function: bound repeat],
-  version: '0.2.2',
+  version: '0.3.0',
   xiterable: [Function: bound of],
   xrange: [Function: bound xrange],
   zip: [Function: bound zip],
