@@ -123,7 +123,7 @@ export declare class Xiterable<T> {
     * @param {String} separator
     * @returns {String}
     */
-    join(separator?: string): string | undefined;
+    join(separator?: string): string;
     /**
      * `every` as `Array.prototype.every`
      */

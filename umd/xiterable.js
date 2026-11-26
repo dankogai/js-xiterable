@@ -311,7 +311,11 @@
         * @returns {String}
         */
         join(separator = ',') {
-            return this.reduce((a, v) => String(a) + separator + String(v));
+            const sep = `${separator}`;
+            return this.reduce((a, v, i) => {
+                const text = v === null || v === undefined ? '' : `${v}`;
+                return a + (i ? sep : '') + text;
+            }, '');
         }
         /**
          * `every` as `Array.prototype.every`

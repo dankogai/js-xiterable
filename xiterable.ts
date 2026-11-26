@@ -300,8 +300,12 @@ export class Xiterable<T> {
     * @param {String} separator
     * @returns {String}
     */
-    join(separator: string = ','): string | undefined {
-        return this.reduce((a, v) => String(a) + separator + String(v));
+    join(separator: string = ','): string {
+        const sep = `${separator}`;
+        return this.reduce((a, v, i) => {
+            const text = v === null || v === undefined ? '' : `${v}`;
+            return a + (i ? sep : '') + text;
+        }, '');
     }
     /**
      * `every` as `Array.prototype.every`

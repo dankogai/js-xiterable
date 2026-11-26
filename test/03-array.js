@@ -72,6 +72,67 @@ describe('.reduce(), .reduceRight()', () => {
         $(xr4.reduceRight(f, '')).to.equal([...xr4].reduceRight(f, ''))
     );
 });
+describe('.join()', () => {
+    for (const [name, values] of [
+        ['empty input', []],
+        ['a number', [42]],
+        ['a boolean', [false]],
+        ['null', [null]],
+        ['undefined', [undefined]],
+        ['nullish fields', [null, 'a', undefined, 'b', null]],
+        ['a sparse array', Array(3)],
+        ['strings', ['a', 'b', 'c']],
+        ['nested arrays', [[1, 2], [3]]],
+    ]) {
+        it(`matches Array.join for ${name}`, () => {
+            for (const separator of [undefined, '', '|']) {
+                $(xiterable(values).join(separator)).to.equal(values.join(separator));
+            }
+        });
+    }
+    for (const length of [0, 1, 3]) {
+        it(`coerces the separator once before ${length} values`, () => {
+            const events = [];
+            const separator = {
+                [Symbol.toPrimitive](hint) {
+                    events.push(`separator:${hint}`);
+                    return '|';
+                },
+            };
+            const values = Array.from({ length }, (_, i) => ({
+                [Symbol.toPrimitive](hint) {
+                    events.push(`value${i}:${hint}`);
+                    return `v${i}`;
+                },
+            }));
+            const expected = values.join(separator);
+            const expectedEvents = events.slice();
+            events.length = 0;
+            $(xiterable(values).join(separator)).to.equal(expected);
+            $(events).to.deep.equal(expectedEvents);
+        });
+    }
+    it('rejects Symbol values as Array.join does', () => {
+        for (const values of [[Symbol('value')], ['a', Symbol('value')]]) {
+            $(() => values.join()).to.throw(TypeError);
+            $(() => xiterable(values).join()).to.throw(TypeError);
+        }
+    });
+    it('rejects a Symbol separator even for empty or singleton input', () => {
+        for (const values of [[], ['a'], ['a', 'b']]) {
+            $(() => values.join(Symbol('separator'))).to.throw(TypeError);
+            $(() => xiterable(values).join(Symbol('separator'))).to.throw(TypeError);
+        }
+    });
+    it('joins a finite generator', () => {
+        const values = [1, null, 3];
+        const iter = new Xiterable(function* () { yield* values; }, values.length);
+        $(iter.join('|')).to.equal(values.join('|'));
+    });
+    it('still rejects an endless iterable', () => {
+        $(() => xrange().join()).to.throw(RangeError);
+    });
+});
 describe('.slice()', () => {
     const ary = [...xrange(-4, 4)];
     for (const s of ary) {
